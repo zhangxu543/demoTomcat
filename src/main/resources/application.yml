@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/system?serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+  jackson:
+    time-zone: GMT+8
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration
+
+
+
+server:
+  port: 8080
+mybatis:
+  type-aliases-package: com.csi.domain
+
+
+

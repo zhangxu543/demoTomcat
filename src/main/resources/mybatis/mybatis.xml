@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+   <!-- <properties resource="db.properties"></properties>
+    <settings>
+        &lt;!&ndash;配置日志&ndash;&gt;
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>-->
+    <!--起别名-->
+    <typeAliases>
+        <!--单个起别名-->
+        <!-- <typeAlias type="com.csi.domain.City" alias="city"></typeAlias>-->
+        <!--批量起别名：com.csi.domain-->
+        <package name="com.csi.domain"/>
+    </typeAliases>
+    <!--环境-->
+    <!--分页配置-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+    <!--  <settings>
+        &lt;!&ndash; lazyLoadingEnabled:延迟加载启动，默认是false &ndash;&gt;
+        <setting name="lazyLoadingEnabled" value="true"/>
+        &lt;!&ndash; aggressiveLazyLoading：积极的懒加载，false的话按需加载，默认是true &ndash;&gt;
+        <setting name="aggressiveLazyLoading" value="false"/>
+
+        &lt;!&ndash; 开启二级缓存，默认是false &ndash;&gt;
+        <setting name="cacheEnabled" value="true"/>
+    </settings>-->
+</configuration>
