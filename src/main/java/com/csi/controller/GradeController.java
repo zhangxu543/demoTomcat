@@ -1,5 +1,6 @@
 package com.csi.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.csi.domain.Grade;
 import com.csi.domain.Student;
 import com.csi.domain.Subject;
@@ -16,8 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +80,44 @@ public class GradeController {
         }
         return "上传成功";
     }
+
+    @RequestMapping("/exportGrades/{grade}")
+    @ResponseBody
+    public void exportStudent(@PathVariable(value = "grade") String stu, HttpServletRequest request,
+                              HttpServletResponse response){
+        Grade grade = JSON.parseObject(stu, Grade.class);
+        logger.info("筛选条件======" + grade);
+        Map<String, Object> map = new HashMap<>();
+        map.put("majorId", grade.getMajor().getId());
+        map.put("subId", grade.getSubject().getId());
+
+        if (!("".equals(grade.getStudent().getStuId())))
+            map.put("stuId", grade.getStudent().getStuId());
+
+        if (!("".equals(grade.getClassroom())))
+            map.put("classroom", grade.getClassroom());
+
+        if (!("".equals(grade.getTeacher().getTeaId())))
+            map.put("teaId", grade.getTeacher().getTeaId());
+        List<Grade> list = service.findByLike(map);
+        logger.info("查询出来成绩个数======" + list.size());
+        try {
+            //调用业务,获取所有的用户信息
+            byte[] excelData=service.exportGrade(list);
+            //把excle的字节数组中的数据以文件的方式下载到客户端
+            response.setContentType("application/x-msdownload");
+            response.setHeader("Content-Disposition", "attachment;filename=studentsGrade.xls");
+            response.setContentLength(excelData.length);
+            OutputStream os=response.getOutputStream();
+            os.write(excelData);
+            os.flush();
+            os.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     @RequestMapping("/findByLike")
     public List<Grade> findByLike(@RequestBody Grade grade) {

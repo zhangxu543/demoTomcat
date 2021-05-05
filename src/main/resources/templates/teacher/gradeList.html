@@ -81,6 +81,7 @@
                     <el-form-item>
                         <el-button @click="handleRest">清除</el-button>
                         <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
+                        <el-button class="butOK" @click="exportGrades()">导出</el-button>
                     </el-form-item>
                 </el-form>
             </div>
@@ -474,12 +475,13 @@
             findByLike: function () {
                 axios.post("/grade/findByLike", this.grade).then(response => {
                     this.grades = response.data;
-                    this.handleRest();
                 }).catch(error => {
                     console.dir(error)
                 })
             },
-
+            exportGrades:function (){
+                window.location.href="/grade/exportGrades/"+JSON.stringify(this.grade);
+            },
             /*------------------------*/
 
             //清除

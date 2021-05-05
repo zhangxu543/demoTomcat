@@ -3,6 +3,7 @@ package com.csi.service.impl;
 import com.csi.dao.GradeDao;
 import com.csi.domain.Grade;
 import com.csi.service.GradeService;
+import com.csi.util.GradeExportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,5 +34,10 @@ public class GradeServiceImpl implements GradeService {
     @Override
     public List<Grade> findByLike(Map<String, Object> map) {
         return dao.findByLike(map);
+    }
+
+    @Override
+    public byte[] exportGrade(List<Grade> list) {
+        return GradeExportUtil.write2Excel(list);
     }
 }

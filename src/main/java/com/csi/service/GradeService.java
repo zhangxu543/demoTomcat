@@ -16,4 +16,5 @@ public interface GradeService {
     void insert(Grade grade);
     void update(Grade grade);
     List<Grade> findByLike(Map<String,Object> map);
+    byte[] exportGrade(List<Grade> list);
 }
