@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>黑马面面</title>
+    <meta name="description" content="发票详情">
+    <meta name="keywords" content="发票详情">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app" style="margin: 0 auto">
+    <div class="app-container">
+        <h2 class="titleInfo"><span>信息详情</span></h2>
+        <div class="box common-table-border" style="margin-top: 15px;min-height: calc(100vh - 55px);">
+            <input hidden="" th:value="${studentInfo.stuId}" ref="getValue">
+            <div class="content">
+                <ul class="contentList clear">
+                    <li style="width: 48%">【学号】：<span id="stuNo" th:text="${studentInfo.stuId}"></span></li>
+                    <li style="width: 48%">【姓名】：<span th:text="${studentInfo.stuName}"></span></li>
+                    <li style="width: 48%">【性别】：<span th:text="${studentInfo.stuSex}"></span></li>
+                    <li style="width: 48%">【密码】：<span th:text="${studentInfo.stuPassword}"></span></li>
+                    <li style="width: 48%">【籍贯】：<span th:text="${studentInfo.stuNative}"></span></li>
+                    <li style="width: 48%">【生日】：<span th:text="${studentInfo.stuBirthday}"></span></li>
+
+                    <li style="width: 48%">【专业】：<span th:text="${studentInfo.major.name}"></span></li>
+                    <li style="width: 48%">【班级】：<span th:text="${studentInfo.stuClass}"></span></li>
+                    <li style="width: 48%">【宿舍】：<span th:text="${studentInfo.stuDorm}"></span></li>
+                    <li style="width: 48%">【政治面貌】：<span th:text="${studentInfo.politic.name}"></span></li>
+                    <li style="width: 48%">【民族】：<span th:text="${studentInfo.nation.name}"></span></li>
+                    <li style="width: 48%">【身份证号】：<span th:text="${studentInfo.stuIDcard}"></span></li>
+                    <li style="width: 48%">【家庭住址】：<span th:text="${studentInfo.stuAddress}"></span></li>
+                    <li style="width: 48%">【学籍】：<span th:text="${studentInfo.schoolRoll.name}"></span></li>
+
+                </ul>
+            </div>
+
+            <div class="content">
+                <el-button type="primary" @click="handleCreate">编辑</el-button>
+                <el-button type="primary" @click="back()">返回</el-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑方向弹层 -->
+    <el-dialog title="新增学生" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+        <el-form label-width="120px" :model="student" :rules="rules" ref="student">
+
+            <el-form-item label="学号：" prop="stuId">
+                <el-input readonly v-model="student.stuId" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="姓名：" prop="stuName">
+                <el-input readonly v-model="student.stuName" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="身份证号：" prop="stuIdcard">
+                <el-input v-model="student.stuIDcard" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="出生日期" >
+                <el-date-picker
+                        style="width: 120px"
+                        value-format="yyyy-MM-dd"
+                        v-model="student.stuBirthday"
+                        type="date"
+                        placeholder="    选择日期"
+                        :picker-options="pickerOptions"
+                >
+                </el-date-picker>
+            </el-form-item>
+
+            <el-form-item label="家庭住址：" prop="stuClass">
+                <el-select v-model="city1.id" placeholder="省"  @change="getshiList">
+                    <el-option
+                            v-for="item in productAreaList"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+
+                <el-select v-model="city2.id" placeholder="市"   @change="getquList">
+                    <el-option
+                            v-for="item in productAreaList1"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+
+                <el-select v-model="city3.id" placeholder="区" @change="getpropertyList">
+                    <el-option
+                            v-for="item in productAreaList2"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+                <el-input v-model="value" placeholder="具体地址" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="民族：" prop="stuClass">
+                <el-select v-model="student.nation.id" placeholder="请选择民族" >
+                    <el-option
+                            v-for="item in nations"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="handleCreateCancel">取 消</el-button>
+            <el-button type="primary" @click="updateStudent()">确 定</el-button>
+        </div>
+    </el-dialog>
+
+
+</div>
+</body>
+<!-- 引入组件库 -->
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            /* dailys:[],*/
+            baseData: base,
+            id: '',
+            result: {},
+            student: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIDcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            student0: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIDcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            studentNull: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIDcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            productAreaList:[],
+            city1:{
+                id:'',
+                name:'',
+                cid:''
+            },
+            productAreaList1:[],
+            city2:{
+                id:'',
+                name:'',
+                cid:''
+            },
+            productAreaList2:[],
+            city3:{
+                id:'',
+                name:'',
+                cid:''
+            },
+            value:'',
+            dialogFormVisible: false,
+            nations:[],
+            politics:[],
+            rules: {},
+            pickerOptions: {
+                disabledDate(time) {
+                    return time.getTime() > Date.now();
+                },
+                shortcuts: [{
+                    text: '今天',
+                    onClick(picker) {
+                        picker.$emit('pick', new Date());
+                    }
+                }, {
+                    text: '昨天',
+                    onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24);
+                        picker.$emit('pick', date);
+                    }
+                }, {
+                    text: '一周前',
+                    onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', date);
+                    }
+                }]
+            },
+
+
+        },
+        mounted() {
+
+        },
+        methods: {
+
+            //返回上一级
+            back: function () {
+                window.history.back();
+            },
+
+            getAreaList() {
+                axios.post("/city/findSheng").then(response=>{
+                    this.productAreaList=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                })
+            },
+            getshiList() {
+                axios.post("/city/findById/"+ this.city1.id ).then(response=>{
+                    this.city1=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                });
+                axios.post("/city/findByCid/"+ this.city1.id ).then(response=>{
+                    this.productAreaList1=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                })
+            },
+            getquList() {
+                axios.post("/city/findById/"+ this.city2.id ).then(response=>{
+                    this.city2=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                });
+                axios.post("/city/findByCid/"+ this.city2.id).then(response=>{
+                    this.productAreaList2=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                })
+            },
+            getpropertyList(){
+                axios.post("/city/findById/"+ this.city3.id ).then(response=>{
+                    this.city3=response.data;
+                }).catch(error=>{
+                    console.dir(error)
+                });
+            },
+            findNations:function (){
+                axios.get("/nation/findAll").then(response => {
+                    this.nations = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+
+            findById:function (){
+                axios.get("/student/findById0/" + this.$refs.getValue.value).then(response => {
+                    this.student = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            updateStudent:function () {
+                if(this.city3.name!='')
+                   this.student.stuAddress=this.city1.name+this.city2.name+this.city3.name+this.value;
+                axios.post("/student/updateStudent", this.student).then(response => {
+                    this.$message.success(response.data.message);
+                }).catch(error => {
+                    console.dir(error);
+                });
+                //window.location.href="/student/findById/"+this.$refs.getValue.value
+                this.dialogFormVisible = false;
+
+            },
+            // 修改
+            handleCreate() {
+                this.findById();
+                this.getAreaList();
+                this.findNations();
+                this.dialogFormVisible = true;
+            },
+
+            //新增取消
+            handleCreateCancel: function () {
+                this.dialogFormVisible = false;
+            },
+        },
+    })
+</script>
+</html>

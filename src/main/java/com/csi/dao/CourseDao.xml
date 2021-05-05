@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.csi.dao.CourseDao">
+
+    <!--结果集映射-->
+    <resultMap id="studentResult" type="course">
+        <id column="id" property="id"></id>
+        <result column="weekDay" property="weekDay"></result>
+        <result column="several" property="several"></result>
+        <result column="classroom" property="classRoom"></result>
+        <result column="description" property="description"></result>
+
+        <!--一对一映射-->
+        <association property="subject" column="sub_id" select="com.csi.dao.SubjectDao.findById"></association>
+        <association property="teacher" column="tea_id" select="com.csi.dao.TeacherDao.findById"></association>
+
+    </resultMap>
+
+    <select id="findByClass" parameterType="string" resultMap="studentResult">
+        select * from course where classroom=#{classrooom}
+    </select>
+
+    <insert id="insert" parameterType="course" >
+    insert into course ( weekday, several,
+      sub_id, tea_id, classroom,
+      description)
+    values (#{jdbcType=INTEGER}, #{weekDay,jdbcType=INTEGER}, #{several,jdbcType=INTEGER},
+      #{subject.id,jdbcType=INTEGER}, #{teacher.id,jdbcType=VARCHAR}, #{classRoom,jdbcType=VARCHAR},
+      #{description,jdbcType=VARCHAR})
+    </insert>
+
+    <update id="updateById" parameterType="course" >
+        update course
+        set
+        weekday = #{weekDay,jdbcType=INTEGER},
+        several = #{several,jdbcType=INTEGER},
+        sub_id = #{subject.id,jdbcType=INTEGER},
+        tea_id = #{teacher.id,jdbcType=VARCHAR},
+        classroom = #{classRoom,jdbcType=VARCHAR},
+        description = #{description,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

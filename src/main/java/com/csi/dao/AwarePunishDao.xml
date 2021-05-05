@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.csi.dao.AwarePunishDao">
+
+    <!--结果集映射-->
+    <resultMap id="awarePunishResult" type="awarePunish">
+        <id column="id" property="id"></id>
+        <result column="levels" property="levels"></result>
+        <result column="description" property="description"></result>
+        <result column="times" property="times"></result>
+        <result column="status" property="status"></result>
+        <!--一对一映射-->
+        <association property="student" column="stu_id" select="com.csi.dao.StudentDao.findById"></association>
+        <association property="teacher" column="tea_id" select="com.csi.dao.TeacherDao.findById"></association>
+
+    </resultMap>
+
+    <insert id="insert" parameterType="awarePunish" >
+    insert into aware_punish (levels, stu_id, times, description, status ,classroom,tea_id)
+    values (#{levels,jdbcType=VARCHAR}, #{student.stuId,jdbcType=VARCHAR},
+      #{times,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR},#{classroom,jdbcType=VARCHAR},#{teacher.teaId,jdbcType=VARCHAR}
+      )
+    </insert>
+
+    <update id="update" parameterType="awarePunish" >
+        update aware_punish
+        set
+        levels = #{levels,jdbcType=VARCHAR},
+        stu_id = #{student.stuId,jdbcType=VARCHAR},
+        times = #{times,jdbcType=VARCHAR},
+        description = #{description,jdbcType=VARCHAR},
+        status = #{status,jdbcType=VARCHAR},
+        classroom = #{classroom,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="findById" parameterType="int" resultMap="awarePunishResult">
+        select * from aware_punish where id=#{id}
+    </select>
+
+    <select id="findByLike" parameterType="awarePunish" resultMap="awarePunishResult">
+        select * from aware_punish
+        <where>
+            1=1
+            <if test="student != null">
+                and stu_id like concat('%',#{student.stuId},'%')
+            </if>
+            <if test="status != null">
+                and status like concat('%',#{status},'%')
+            </if>
+            <if test="times != null">
+                and times = #{times}
+            </if>
+            <if test="levels != null">
+                and levels like concat('%',#{levels},'%')
+            </if>
+            <if test="classroom != null">
+                and classroom like concat('%',#{classroom},'%')
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

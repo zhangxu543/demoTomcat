@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>上新</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <el-form ref="form" :model="food" label-width="80px">
+        <el-form-item label="菜品名称">
+            <el-input v-model="food.f_name"></el-input>
+        </el-form-item>
+        <el-form-item label="菜品类别">
+            <el-select v-model="food.f_t_id" placeholder="菜品类别">
+                <el-option
+                        v-for="item in foodtype"
+                        :key="item.t_id"
+                        :label="item.t_name"
+                        :value="item.t_id">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="菜品图片">
+            <el-upload
+                    style="display: inline-block"
+                    :limit="1"
+                    class="upload-demo"
+                    ref="upload"
+                    list-type="picture"
+                    :action="url"
+                    :file-list="fileList"
+                    :auto-upload="true"
+                    :on-exceed="handleExceed"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :on-success="handleOnSuccess">
+                <el-button size="small" type="primary">选取文件</el-button>
+            </el-upload>
+        </el-form-item>
+        <el-form-item label="菜品描述">
+            <el-input type="textarea" v-model="food.f_description"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+        </el-form-item>
+    </el-form>
+
+</div>
+</body>
+<script th:src="@{/js/vue.min.js}"></script>
+<script th:src="@{/element-ui/lib/index.js}"></script>
+<script src="../asserts/js/axios-0.18.0.js"></script>
+<script src="../asserts/js/base.js"></script>
+<script src="../asserts/js/jquery.js"></script>
+<link rel="stylesheet" th:href="@{/element-ui/lib/theme-chalk/index.css}">
+<script>
+
+    new Vue({
+
+        el: '#app',
+
+        data() {
+            return {
+                url:'',
+                food:{
+                    f_name :'',
+                    f_description:'',
+                    f_imgpath:'',
+                    f_t_id:''
+                },
+                fileList:[],
+                foodtype:[],
+                url:'/backend/insertPicture',
+
+            }
+
+        },
+        created() {
+            this.getfoodtype();
+
+        },
+        methods: {
+            getfoodtype(){
+                axios.get("/backend/findalltype").then(response=>{
+                    this.foodtype=response.data;
+                }).catch(error => {
+                    console.dir(error) ;
+                });
+            },
+            handleExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handleOnSuccess(response, file, fileList) {
+                if (response.code ===0) {
+                    return this.$message.error(response.msg)
+                }else {
+                    this.$message({
+                        message: '导入成功',
+                        type: 'success',
+                        duration: 1000,
+                        onClose: () => {
+                            this.$refs.upload.clearFiles()
+                        }
+                    })
+                }
+                this.fileList = fileList;
+                this.food.f_imgpath = response.path;
+
+
+            },
+
+            onSubmit() {
+                axios.post("/backend/insertfood?name="+this.food.f_name+"&description="+ this.food.f_description+"&imgpath="+ this.food.f_imgpath+"&id="+ this.food.f_t_id).then(response=>{
+                    alert("添加成功");
+                }).catch(error=>{
+                    console.dir(error) ;
+                });
+            }
+        }
+
+    })
+
+</script>
+</html>

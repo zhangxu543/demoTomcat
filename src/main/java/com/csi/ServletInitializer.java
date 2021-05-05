@@ -1,4 +1,4 @@
-package com.csi.demo;
+package com.csi;
 
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>学生信息</title>
+    <meta name="description" content="学生信息">
+    <meta name="keywords" content="学生信息">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header common-search-border1">
+        <el-button class="butAdd" @click="handleCreate"><i class="el-icon-plus" aria-hidden="true"></i> 新增教师信息
+        </el-button>
+    </div>
+    <div class="app-container">
+        <div class="box common-search-border2">
+            <div class="filter-container">
+                <!-- 搜索栏 -->
+
+                <el-form :inline="true" :model="teacher0" ref="teacher0" class="formInfo" label-width="70px">
+                    <el-form-item label="教师编号：" label-width="90px" prop="stuId">
+                        <el-input placeholder="请输入" v-model="teacher0.teaId" style="width: 100px;"
+                                  class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="姓名:" prop="stuName">
+                        <el-input placeholder="请输入" v-model="teacher0.teaName" style="width: 100px;"
+                                  class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="部门:" label-width="60px" prop="dept">
+                        <el-select style="width: 100px" placeholder="请选择" v-model="teacher0.dept.id">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in depts"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="级别：" label-width="60px" prop="rank">
+                        <el-select style="width: 100px" placeholder="请选择" v-model="teacher0.rank.id">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in ranks"></el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button @click="handleRest">清除</el-button>
+                        <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+
+        <div class="box common-table-border" style="margin:8px 0 0;">
+            <div class="box common-table-border" style="margin:8px 0 0;">
+
+                <template >
+                    <el-table
+                            :data="teachers.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            style="width: 100%">
+
+                        <el-table-column
+                                width="80"
+                                prop="teaId"
+                                label="编号">
+                        </el-table-column>
+                        <el-table-column
+                                width="80"
+                                prop="teaName"
+                                label="姓名">
+                        </el-table-column>
+                        <el-table-column
+                                width="60"
+                                prop="teaSex"
+                                label="性别">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="dept.name"
+                                label="部门">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="80"
+                                prop="rank.name"
+                                label="级别">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="teaState"
+                                label="是否管理员">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="120"
+                                prop="teaPhone"
+                                label="电话">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="300"
+                                prop="teaAddress"
+                                label="住址">
+                        </el-table-column>
+
+                        <el-table-column width="300">
+                            <template slot-scope="scope">
+                                <el-button type="primary" round @click="update(scope.row)">修改</el-button>
+                                <el-button type="primary" round @click="deleteTeacher(scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+
+
+                    </el-table>
+                    <!-- 分页器 -->
+                    <div class="block" style="margin-top:15px;">
+                        <el-pagination align='center' @size-change="handleSizeChange"
+                                       @current-change="handleCurrentChange"
+                                       :current-page="currentPage"
+                                       :page-sizes="[1,5,10,20]"
+                                       :page-size="pageSize"
+                                       layout="total, sizes, prev, pager, next, jumper"
+                                       :total="teachers.length">
+                        </el-pagination>
+                    </div>
+                </template>
+
+
+            </div>
+            <!-- 新增方向弹层 -->
+            <el-dialog title="新增教师" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+                <el-form label-width="120px" :model="teacher" :rules="rules" ref="teacher">
+
+                    <el-form-item label="教师编号:"  prop="stuId">
+                        <el-input v-model="teacher.teaId" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="姓名:" prop="stuName">
+                        <el-input v-model="teacher.teaName" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="性别:"  prop="stuSex">
+                        <el-select placeholder="请选择" v-model="teacher.teaSex" autocomplete="off">
+                            <el-option :key="item.value"
+                                       :label="item.value"
+                                       :value="item.value"
+                                       v-for="item in baseData.sex">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="电话:" prop="teaPhone">
+                        <el-input placeholder="请输入电话" v-model="teacher.teaPhone" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="部门:" prop="dept">
+                        <el-select placeholder="请选择" v-model="teacher.dept.id" autocomplete="off">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in depts">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="级别:"  prop="rank">
+                        <el-select placeholder="请选择" v-model="teacher.rank.id" autocomplete="off">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in ranks">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="handleCreateCancel">取 消</el-button>
+                    <el-button type="primary" @click="insert()">确 定</el-button>
+                </div>
+            </el-dialog>
+            <el-dialog title="修改教师" align="center" :visible.sync="dialogFormVisible1" width="40%" top="8vh">
+                <el-form label-width="120px" :model="teacher1" :rules="rules" ref="teacher1">
+
+                    <el-form-item label="教师编号:"  prop="stuId">
+                        <el-input v-model="teacher1.teaId" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="姓名:" prop="stuName">
+                        <el-input v-model="teacher1.teaName" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="性别:"  prop="stuSex">
+                        <el-select placeholder="请选择" v-model="teacher1.teaSex" autocomplete="off">
+                            <el-option :key="item.value"
+                                       :label="item.value"
+                                       :value="item.value"
+                                       v-for="item in baseData.sex">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="电话:" prop="teaPhone">
+                        <el-input placeholder="请输入电话" v-model="teacher1.teaPhone" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="部门:" prop="dept">
+                        <el-select placeholder="请选择" v-model="teacher1.dept.id" autocomplete="off">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in depts">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="级别:"  prop="rank">
+                        <el-select placeholder="请选择" v-model="teacher1.rank.id" autocomplete="off">
+                            <el-option :key="item.id"
+                                       :label="item.name"
+                                       :value="item.id"
+                                       v-for="item in ranks">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="handleCreateCancel1">取 消</el-button>
+                    <el-button type="primary" @click="update1()">确 定</el-button>
+                </div>
+            </el-dialog>
+
+            <!-- end -->
+        </div>
+
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                result:{
+                    code:'',
+                    message:'',
+                },
+                teachers:[],
+                teacher:{
+                    teaId:'',
+                    teaPassword:'',
+                    teaName:'',
+                    teaSex:'',
+                    teaPhone:'',
+                    teaAddress:'',
+                    dept: {
+                        id:'',
+                        name:''
+                    },
+                    rank: {
+                        id:'',
+                        name:''
+                    },
+                    teaState:''
+
+                },
+                teacher0:{
+                    teaId:'',
+                    teaPassword:'',
+                    teaName:'',
+                    teaSex:'',
+                    teaPhone:'',
+                    teaAddress:'',
+                    dept: {
+                        id:'',
+                        name:''
+                    },
+                    rank: {
+                        id:'',
+                        name:''
+                    },
+                    teaState:''
+
+                },
+                teacher1:{
+                    teaId:'',
+                    teaPassword:'',
+                    teaName:'',
+                    teaSex:'',
+                    teaPhone:'',
+                    teaAddress:'',
+                    dept: {
+                        id:'',
+                        name:''
+                    },
+                    rank: {
+                        id:'',
+                        name:''
+                    },
+                    teaState:''
+
+                },
+                teacherNull:{
+                    teaId:'',
+                    teaPassword:'',
+                    teaName:'',
+                    teaSex:'',
+                    teaPhone:'',
+                    teaAddress:'',
+                    dept: {
+                        id:'',
+                        name:''
+                    },
+                    rank: {
+                        id:'',
+                        name:''
+                    },
+                    teaState:''
+
+                },
+                depts:[],
+                ranks:[],
+                currentPage: 1, // 当前页码
+                total: 20, // 总条数
+                pageSize: 5,// 每页的数据条数
+
+                tableKey: 0,
+                pagination: {
+                    total: 0,
+                    pageNum: 1,
+                    pageSize: 10
+                },
+
+                baseData: base,
+                dialogFormVisible: false,
+                dialogFormVisible1: false,
+                rules: {}
+
+            }
+        },
+
+        methods: {
+            deleteTeacher:function (row){
+                if(confirm("确定要删除"+row.teaName+"教师这条数据吗？")){
+                    axios.post("/teacher/delete/"+row.teaId).then(response =>{
+                        this.$message.success(response.data.message);
+                        this.findAll()
+                    }).catch(error =>{
+                        console.dir(error)
+                    })
+                }
+            },
+            update:function (row){
+              this.teacher1=row;
+              this.dialogFormVisible1=true;
+            },
+            update1:function (){
+                axios.post("/teacher/update",this.teacher1).then(response =>{
+                    this.$message.success(response.data.message);
+                    this.findAll()
+                }).catch(error =>{
+                    console.dir(error)
+                })
+                this.dialogFormVisible1 = false;
+            },
+            insert:function (){
+                axios.post("/teacher/insert",this.teacher).then(response =>{
+                    this.$message.success(response.data.message);
+                    this.findAll()
+                    this.teacher=this.teacherNull;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+                this.dialogFormVisible = false;
+            },
+            findAll:function (){
+                axios.post("/teacher/findAll").then(response =>{
+
+                    this.teachers=response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            findByLike:function (){
+                axios.post("/teacher/findByLike",this.teacher0).then(response =>{
+                    this.teachers=response.data;
+                    this.teacher0.teaName="";
+                    this.teacher0.teaId="";
+                    this.teacher0.rank.id="";
+                    this.teacher0.dept.id="";
+                }).catch(error =>{
+                    console.dir(error)
+                })
+
+            },
+            findDepts:function (){
+                axios.get("/teaDept/findAll").then(response => {
+                    this.depts = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            findRanks:function (){
+                axios.get("/teaRank/findAll").then(response => {
+                    this.ranks = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+
+            //清除
+            handleRest() {
+                this.teacher0.teaName="";
+                this.teacher0.teaId="";
+                this.teacher0.rank.id="";
+                this.teacher0.dept.id="";
+            },
+
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.currentPage = 1;
+                this.pageSize = val;
+            },
+            //当前页改变时触发 跳转其他页
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                this.currentPage = val;
+            },
+            // 新增
+            handleCreate() {
+                this.dialogFormVisible = true;
+            },
+
+
+            //新增取消
+            handleCreateCancel() {
+                this.teacher=this.teacherNull
+                this.dialogFormVisible = false;
+            },
+            handleCreateCancel1() {
+                this.dialogFormVisible1 = false;
+            },
+
+
+
+
+        },
+
+        mounted: function () {
+            //挂载完成后，调用查询全部的方法
+            this.findAll();
+            this.findDepts();
+            this.findRanks();
+
+        }
+    })
+</script>
+</html>

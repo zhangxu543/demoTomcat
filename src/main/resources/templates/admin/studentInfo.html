@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>黑马面面</title>
+    <meta name="description" content="发票详情">
+    <meta name="keywords" content="发票详情">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app" style="margin: 0 auto">
+
+    <div class="app-container">
+        <div class="box common-table-border" style="margin-top: 15px;min-height: calc(100vh - 55px);">
+            <h2 class="titleInfo"><span>信息详情</span></h2>
+            <input hidden="" th:value="${studentInfo.stuId}" ref="getValue">
+            <div class="content">
+                <ul class="contentList clear">
+                    <li style="width: 48%">【学号】：<span id="stuNo" th:text="${studentInfo.stuId}"></span></li>
+                    <li style="width: 48%">【姓名】：<span th:text="${studentInfo.stuName}"></span></li>
+                    <li style="width: 48%">【性别】：<span th:text="${studentInfo.stuSex}"></span></li>
+                    <li style="width: 48%">【密码】：<span th:text="${studentInfo.stuPassword}"></span></li>
+                    <li style="width: 48%">【生日】：<span th:text="${studentInfo.stuBirthday}"></span></li>
+                    <li style="width: 48%">【专业】：<span th:text="${studentInfo.major.name}"></span></li>
+                    <li style="width: 48%">【班级】：<span th:text="${studentInfo.stuClass}"></span></li>
+                    <li style="width: 48%">【宿舍】：<span th:text="${studentInfo.stuDorm}"></span></li>
+                    <li style="width: 48%">【政治面貌】：<span th:text="${studentInfo.politic.name}"></span></li>
+                    <li style="width: 48%">【民族】：<span th:text="${studentInfo.nation.name}"></span></li>
+                    <li style="width: 48%">【身份证号】：<span th:text="${studentInfo.stuIDcard}"></span></li>
+                    <li style="width: 48%">【家庭住址】：<span th:text="${studentInfo.stuAddress}"></span></li>
+                    <li style="width: 48%">【学籍】：<span th:text="${studentInfo.schoolRoll.name}"></span></li>
+
+                </ul>
+            </div>
+
+            <div class="content">
+                <el-button type="primary" @click="handleCreate">编辑</el-button>
+                <el-button type="primary" @click="back()">返回</el-button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑方向弹层 -->
+    <el-dialog title="学生信息修改" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+        <el-form label-width="120px" :model="student" :rules="rules" ref="student">
+
+            <el-form-item label="学号：" prop="stuId">
+                <el-input v-model="student.stuId" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="姓名：" prop="stuName">
+                <el-input v-model="student.stuName" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="专业：" prop="major.id">
+                <el-select v-model="major.id" placeholder="请选择院系" @change="findMajor()">
+                    <el-option
+                            v-for="item in stuDepts"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+                <el-select v-model="student.major.id" placeholder="请选择专业">
+                    <el-option
+                            v-for="item in majors"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="班级：" prop="stuClass">
+                <el-input v-model="student.stuClass" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="宿舍：" prop="stuDorm">
+                <el-input v-model="student.stuDorm" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="政治面貌：" prop="politic">
+                <el-select v-model="student.politic.id" placeholder="请选择">
+                    <el-option
+                            v-for="item in politics"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="handleCreateCancel">取 消</el-button>
+            <el-button type="primary" @click="updateStudent()">确 定</el-button>
+        </div>
+    </el-dialog>
+
+
+</div>
+</body>
+<!-- 引入组件库 -->
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            /* dailys:[],*/
+            baseData: base,
+            id: '',
+            result: {},
+            student: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIdcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            student0: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIdcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            studentNull: {
+                stuId: '',
+                stuName: '',
+                stuSex: '',
+                stuPassword: '',
+                stuNative: '',
+                stuBirthday: '',
+                major: {
+                    id: '',
+                    name: '',
+                    dept_id: '',
+                    dept_name:''
+                },
+                stuClass: '',
+                stuDorm: '',
+                politic: {
+                    id: '',
+                    name: ''
+                },
+                nation: {
+                    id: '',
+                    name: ''
+                },
+                stuIdcard: '',
+                stuAddress: '',
+                schoolRoll: {
+                    id: '',
+                    name: ''
+                }
+            },
+            schoolRollList:[],
+            dialogFormVisible: false,
+            stuDepts:[],
+            major:{
+                id:'',
+                name:'',
+                dept_id:'',
+                dept_name:''
+            },
+            majors:[],
+            politics:[],
+            rules: {},
+            pickerOptions: {
+                disabledDate(time) {
+                    return time.getTime() > Date.now();
+                },
+                shortcuts: [{
+                    text: '今天',
+                    onClick(picker) {
+                        picker.$emit('pick', new Date());
+                    }
+                }, {
+                    text: '昨天',
+                    onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24);
+                        picker.$emit('pick', date);
+                    }
+                }, {
+                    text: '一周前',
+                    onClick(picker) {
+                        const date = new Date();
+                        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                        picker.$emit('pick', date);
+                    }
+                }]
+            },
+
+
+        },
+        mounted() {
+
+        },
+        methods: {
+
+            //返回上一级
+            back: function () {
+                window.history.back();
+            },
+            findPolitics:function (){
+                axios.get("/politic/findAll").then(response => {
+                    this.politics = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            findDept:function (){
+                axios.post("/major/findByDept").then(response =>{
+                    this.stuDepts = response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            findMajor:function (){
+                axios.post("/major/findMajor",this.major).then(response =>{
+                    this.majors = response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            findSchoolRolls:function (){
+                axios.get("/schoolRoll/findAll").then(response => {
+                    this.schoolRollList = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            findById:function (){
+                axios.get("/student/findById0/" + this.$refs.getValue.value).then(response => {
+                    this.student = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            updateStudent:function () {
+                axios.post("/student/updateStudent", this.student).then(response => {
+                    this.$message.success(response.data.message);
+                }).catch(error => {
+                    console.dir(error);
+                });
+                //window.location.href="/student/findById/"+this.$refs.getValue.value
+                this.dialogFormVisible = false;
+
+            },
+            // 修改
+            handleCreate() {
+                this.findById();
+                this.findDept();
+                this.findPolitics();
+                this.findSchoolRolls();
+                this.dialogFormVisible = true;
+            },
+
+            //新增取消
+            handleCreateCancel: function () {
+                this.findById();
+                this.dialogFormVisible = false;
+            },
+        },
+    })
+</script>
+</html>

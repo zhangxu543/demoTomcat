@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>学生信息</title>
+    <meta name="description" content="学生信息">
+    <meta name="keywords" content="学生信息">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app">
+    <div class="content-header common-search-border1">
+        <el-button class="butAdd" @click="handleCreate">
+            <i class="el-icon-plus" aria-hidden="true"></i> 新增部门信息
+        </el-button>
+    </div>
+    <div class="app-container">
+        <div class="box common-search-border2">
+            <div class="filter-container">
+                <!-- 搜索栏 -->
+
+<!--
+                <el-form :inline="true" :model="major0" ref="major0" class="formInfo" label-width="70px">
+                    <el-form-item label="专业" label-width="40px" prop="id">
+                        <el-input placeholder="请输入" v-model="major0.name" style="width: 200px;"
+                                  class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="院系" label-width="40px" prop="dept_id">
+                        <el-select v-model="major0.dept_id" placeholder="请选择院系">
+                            <el-option
+                                    v-for="item in stuDepts"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button @click="handleRest">清除</el-button>
+                        <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
+                        <el-button type="primary" class="butOK" @click="findDepts()">查看院系</el-button>
+                    </el-form-item>
+                </el-form>
+-->
+            </div>
+        </div>
+
+        <div class="box common-table-border" style="margin:8px 0 0;">
+            <div class="box common-table-border" style="margin:8px 0 0;">
+
+                <template>
+                    <el-table
+                            :data="depts.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            style="width: 100%">
+
+                        <el-table-column
+                                width="140"
+                                prop="id"
+                                label="部门编号">
+                        </el-table-column>
+                        <el-table-column
+                                width="300"
+                                prop="name"
+                                label="部门名称">
+                        </el-table-column>
+
+                        <el-table-column width="150">
+                            <template slot-scope="scope">
+                                <el-button type="primary" round @click="delete0(scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+
+
+                    </el-table>
+                    <!-- 分页器 -->
+                    <div class="block" style="margin-top:15px;">
+                        <el-pagination align='center' @size-change="handleSizeChange"
+                                       @current-change="handleCurrentChange"
+                                       :current-page="currentPage"
+                                       :page-sizes="[1,5,10,20]"
+                                       :page-size="pageSize"
+                                       layout="total, sizes, prev, pager, next, jumper"
+                                       :total="depts.length">
+                        </el-pagination>
+                    </div>
+                </template>
+
+
+            </div>
+            <!-- 新增方向弹层 -->
+            <el-dialog title="新增部门" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+                <el-form label-width="120px" :model="dept" :rules="rules" ref="dept">
+
+                    <el-form-item label="部门名称：" prop="name">
+                        <el-input placeholder="请输入专部门名称" v-model="dept.name" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="handleCreateCancel">取 消</el-button>
+                    <el-button type="primary" @click="insert()">确 定</el-button>
+                </div>
+            </el-dialog>
+
+
+
+            <!-- end -->
+        </div>
+
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                result: {
+                    code: '',
+                    message: '',
+                },
+                depts: [],
+                dept: {
+                    id: '',
+                    name: ''
+                },
+                deptNull: {
+                    id: '',
+                    name: ''
+                },
+                currentPage: 1, // 当前页码
+                total: 20, // 总条数
+                pageSize: 5,// 每页的数据条数
+
+                tableKey: 0,
+                pagination: {
+                    total: 0,
+                    pageNum: 1,
+                    pageSize: 10
+                },
+                loading: false,
+                dialogFormVisible: false,
+                rules: {}
+
+            }
+        },
+
+        methods: {
+
+            delete0:function(row) {
+                axios.post("/teaDept/delete",row).then(response =>{
+                    this.$message.success(response.data.message);
+                    this.findAll();
+                    this.findDept();
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+
+            //查询全部方法
+            findAll: function () {
+                axios.get("/teaDept/findAll").then(response => {
+                    this.currentPage = 1;
+                    this.depts = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+
+            insert:function (){
+                axios.post("/teaDept/insert",this.dept).then(response =>{
+                    this.$message.success(response.data.message);
+                    this.dept= {};
+                    this.findAll();
+                }).catch(error =>{
+                    console.dir(error)
+                })
+                this.dialogFormVisible = false;
+
+            },
+
+
+            /*------------------------*/
+            //Enter键查询
+            handleFilter() {
+                this.getList()
+            },
+            //清除
+            handleRest() {
+                this.dept = {}
+            },
+            //搜索
+            handleSearch() {
+                this.getList();
+            },
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.currentPage = 1;
+                this.pageSize = val;
+            },
+            //当前页改变时触发 跳转其他页
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                this.currentPage = val;
+            },
+            // 新增
+            handleCreate() {
+                this.dialogFormVisible = true;
+            },
+
+            //新增取消
+            handleCreateCancel() {
+                this.dept = {};
+                this.dialogFormVisible = false;
+            },
+
+
+            // 删除
+            handleDeleted(row) {
+                this.$confirm('此操作将永久删除方向 ' + ', 是否继续?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    var t = this;
+                }).catch(() => {
+                    this.$message.info('已取消操作!')
+                });
+            },
+
+        },
+
+        mounted: function () {
+            //挂载完成后，调用查询全部的方法
+            this.findAll();
+            this.findDept();
+        }
+    })
+</script>
+</html>

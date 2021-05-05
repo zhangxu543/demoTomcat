@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>学生信息</title>
+    <meta name="description" content="学生信息">
+    <meta name="keywords" content="学生信息">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app">
+
+    <div class="app-container">
+        <h2 class="titleInfo"><span>成绩列表</span></h2>
+
+        <div class="box common-search-border2">
+            <div class="filter-container">
+                <!-- 搜索栏 -->
+                <el-form :inline="true" :model="grade" ref="grade" class="formInfo" label-width="70px">
+                    <el-form-item label="学号" label-width="40px" prop="id">
+                        <el-input placeholder="请输入" v-model="grade.student.stuId" style="width: 100px;"
+                                  class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="院系" label-width="40px" prop="dept_id">
+                        <el-select style="width: 150px;" v-model="major.id" placeholder="请选择院系" @change="findMajor()">
+                            <el-option
+                                    v-for="item in stuDepts"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                        <el-select style="width: 150px;" v-model="grade.major.id" placeholder="请选择专业">
+                            <el-option
+                                    v-for="item in majors"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="班级" label-width="40px" prop="id">
+                        <el-input placeholder="请输入" v-model="grade.classroom" style="width: 100px;"
+                                  class="filter-item"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="科目" label-width="40px" prop="subject">
+                        <el-select style="width: 130px;" v-model="grade.subject.id" placeholder="请选择科目">
+                            <el-option
+                                    v-for="item in subjects"
+                                    :key="item.id"
+                                    :label="item.name"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="教师" label-width="40px" prop="teacher">
+                        <el-select style="width: 130px;" v-model="grade.teacher.teaId" placeholder="请选择教师">
+                            <el-option
+                                    v-for="item in teachers"
+                                    :key="item.teaId"
+                                    :label="item.teaName"
+                                    :value="item.teaId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button @click="handleRest">清除</el-button>
+                        <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+
+        <div class="box common-table-border" style="margin:8px 0 0;">
+            <div class="box common-table-border" style="margin:8px 0 0;">
+
+                <template>
+                    <el-table
+                            :data="grades.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            style="width: 100%">
+
+                        <el-table-column
+                                width="100"
+                                prop="student.stuId"
+                                label="学号">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="student.stuName"
+                                label="姓名">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="student.stuSex"
+                                label="性别">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="classroom"
+                                label="班级">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="subject.name"
+                                label="科目">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="teacher.teaName"
+                                label="任课教师">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="grade"
+                                label="成绩">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="subject.credit"
+                                label="所占学分">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="150"
+                                prop="major.name"
+                                label="专业">
+                        </el-table-column>
+
+                        <el-table-column width="150">
+                            <template slot-scope="scope">
+                                <el-button type="primary" round @click="delete0(scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+
+
+                    </el-table>
+                    <!-- 分页器 -->
+                    <div class="block" style="margin-top:15px;">
+                        <el-pagination align='center' @size-change="handleSizeChange"
+                                       @current-change="handleCurrentChange"
+                                       :current-page="currentPage"
+                                       :page-sizes="[1,5,10,20]"
+                                       :page-size="pageSize"
+                                       layout="total, sizes, prev, pager, next, jumper"
+                                       :total="grades.length">
+                        </el-pagination>
+                    </div>
+                </template>
+
+
+            </div>
+            <!-- end -->
+        </div>
+
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                result: {
+                    code: '',
+                    message: '',
+                },
+                grades: [],
+                grade: {
+                    id: '',
+                    student: {
+                        stuId: '',
+                        stuName: '',
+                        stuSex: '',
+                        stuPassword: '',
+                        stuNative: '',
+                        stuBirthday: '',
+                        major: {
+                            id: '',
+                            name: '',
+                            dept_id: ''
+                        },
+                        stuClass: '',
+                        stuDorm: '',
+                        politic: {
+                            id: '',
+                            name: ''
+                        },
+                        nation: {
+                            id: '',
+                            name: ''
+                        },
+                        stuIdcard: '',
+                        stuAddress: '',
+                        schoolRoll: {
+                            id: '',
+                            name: ''
+                        }
+                    },
+                    subject: {
+                        id: '',
+                        name: '',
+                        credit: ''
+                    },
+                    grade: '',
+                    term: '',
+                    teacher: {
+                        teaId: '',
+                        teaPassword: '',
+                        teaName: '',
+                        teaSex: '',
+                        teaPhone: '',
+                        teaAddress: '',
+                        dept: {
+                            id: '',
+                            name: ''
+                        },
+                        rank: {
+                            id: '',
+                            name: ''
+                        },
+                        teaState: ''
+
+                    },
+                    major: {
+                        id: '',
+                        name: '',
+                        dept_id: '',
+                        dept_name: ''
+                    },
+                    classroom: ''
+                },
+                gradeNull: {
+                    id: '',
+                    student: {
+                        stuId: '',
+                        stuName: '',
+                        stuSex: '',
+                        stuPassword: '',
+                        stuNative: '',
+                        stuBirthday: '',
+                        major: {
+                            id: '',
+                            name: '',
+                            dept_id: ''
+                        },
+                        stuClass: '',
+                        stuDorm: '',
+                        politic: {
+                            id: '',
+                            name: ''
+                        },
+                        nation: {
+                            id: '',
+                            name: ''
+                        },
+                        stuIdcard: '',
+                        stuAddress: '',
+                        schoolRoll: {
+                            id: '',
+                            name: ''
+                        }
+                    },
+                    subject: {
+                        id: '',
+                        name: '',
+                        credit: ''
+                    },
+                    grade: '',
+                    term: '',
+                    teacher: {
+                        teaId: '',
+                        teaPassword: '',
+                        teaName: '',
+                        teaSex: '',
+                        teaPhone: '',
+                        teaAddress: '',
+                        dept: {
+                            id: '',
+                            name: ''
+                        },
+                        rank: {
+                            id: '',
+                            name: ''
+                        },
+                        teaState: ''
+
+                    },
+                    major: {
+                        id: '',
+                        name: '',
+                        dept_id: '',
+                        dept_name: ''
+                    },
+                    classroom: ''
+                },
+
+                currentPage: 1, // 当前页码
+                total: 20, // 总条数
+                pageSize: 5,// 每页的数据条数
+
+                tableKey: 0,
+                pagination: {
+                    total: 0,
+                    pageNum: 1,
+                    pageSize: 10
+                },
+
+                loading: false,
+                items: [],
+                baseData: base,
+                dialogFormVisible: false,
+                dialogFormVisible0: false,
+                form: {
+                    dirName: ''
+                },
+
+                pickerOptions: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now();
+                    },
+                    shortcuts: [{
+                        text: '今天',
+                        onClick(picker) {
+                            picker.$emit('pick', new Date());
+                        }
+                    }, {
+                        text: '昨天',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24);
+                            picker.$emit('pick', date);
+                        }
+                    }, {
+                        text: '一周前',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+                            picker.$emit('pick', date);
+                        }
+                    }]
+                },
+                stuDepts:[],
+                major:{},
+                majors:[],
+                rules: {},
+                subjects:[],
+                teachers:[]
+
+            }
+        },
+
+        methods: {
+            findTeachers:function (){
+                axios.post("/teacher/findAll").then(response =>{
+                    this.teachers=response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            findSubjects: function () {
+                axios.get("/subject/findAll").then(response => {
+                    this.subjects = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            findDept:function (){
+                axios.post("/major/findByDept").then(response =>{
+                    this.stuDepts = response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            findMajor:function (){
+                this.grade.major.id='';
+                axios.post("/major/findMajor",this.major).then(response =>{
+                    this.majors = response.data;
+                }).catch(error =>{
+                    console.dir(error)
+                })
+            },
+            //查询全部方法
+            findAll: function () {
+                axios.get("/grade/findAll").then(response => {
+                    this.currentPage = 1;
+                    this.grades = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+            findByLike: function () {
+                axios.post("/grade/findByLike", this.grade).then(response => {
+                    this.grades = response.data;
+                    this.handleRest();
+                }).catch(error => {
+                    console.dir(error)
+                })
+            },
+
+            /*------------------------*/
+
+            //清除
+            handleRest() {
+                this.grade.student.stuId = '';
+                this.grade.classroom = '';
+                this.grade.teacher.teaId = '';
+                this.grade.subject.id='';
+                this.grade.major.id='';
+                this.grade.major.name='';
+                this.major={};
+                this.majors=[];
+            },
+
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.currentPage = 1;
+                this.pageSize = val;
+            },
+            //当前页改变时触发 跳转其他页
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                this.currentPage = val;
+            },
+           /* // 新增
+            handleCreate() {
+                this.findDept();
+                this.dialogFormVisible = true;
+            },
+            handleCreate0() {
+                this.dialogFormVisible0 = true;
+            },
+            //新增取消
+            handleCreateCancel() {
+                this.major = this.majorNull;
+                this.dialogFormVisible = false;
+            },
+            //新增取消
+            handleCreateCancel0() {
+                this.major1 = this.majorNull;
+                this.dialogFormVisible0 = false;
+            },
+*/
+            // 删除
+            handleDeleted(row) {
+                this.$confirm('此操作将永久删除方向 ' + ', 是否继续?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    var t = this;
+                }).catch(() => {
+                    this.$message.info('已取消操作!')
+                });
+            },
+
+            selectOne: function (row) {
+
+            }
+        },
+
+        mounted: function () {
+            //挂载完成后，调用查询全部的方法
+            this.findAll();
+            this.findDept();
+            this.findSubjects();
+            this.findTeachers();
+        }
+    })
+</script>
+</html>

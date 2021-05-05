@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.csi.dao.StudentDao">
+
+    <!--结果集映射-->
+    <resultMap id="studentResult" type="student">
+        <id column="stu_id" property="stuId"></id>
+        <result column="stu_name" property="stuName"></result>
+        <result column="stu_sex" property="stuSex"></result>
+        <result column="stu_password" property="stuPassword"></result>
+        <result column="stu_native" property="stuNative"></result>
+        <result column="stu_birthday" property="stuBirthday"></result>
+        <result column="stu_class" property="stuClass"></result>
+        <result column="stu_dorm" property="stuDorm"></result>
+        <result column="stu_IDcard" property="stuIDcard"></result>
+        <result column="stu_address" property="stuAddress"></result>
+
+        <!--一对一映射-->
+        <association property="major" column="major_id" select="com.csi.dao.MajorDao.findById"></association>
+        <association property="politic" column="politic_id" select="com.csi.dao.PoliticDao.findById"></association>
+        <association property="nation" column="nation_id" select="com.csi.dao.NationDao.findById"></association>
+        <association property="schoolRoll" column="school_roll_id" select="com.csi.dao.SchoolRollDao.findById"></association>
+
+    </resultMap>
+
+    <select id="findById" parameterType="string" resultMap="studentResult">
+        select * from student where stu_id=#{stuId}
+    </select>
+
+    <select id="login" parameterType="string" resultMap="studentResult">
+        select * from student where stu_id=#{stuId} and stu_password=#{password}
+    </select>
+
+    <select id="findByLike" parameterType="map" resultMap="studentResult">
+        select * from student
+        <where>
+            1=1
+            <if test="stuName != null">
+               and stu_name like concat('%',#{stuName},'%')
+            </if>
+            <if test="stuId != null">
+                and stu_id like concat('%',#{stuId},'%')
+            </if>
+            <if test="stuClass != null">
+                and stu_class like concat('%',#{stuClass},'%')
+            </if>
+            <if test="stuSex != null">
+                and stu_sex=#{stuSex}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="student">
+        insert into student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="stuId != null">
+                stu_id,
+            </if>
+            <if test="stuName != null">
+                stu_name,
+            </if>
+            <if test="stuSex != null">
+                stu_sex,
+            </if>
+            <if test="stuPassword != null">
+                stu_password,
+            </if>
+            <if test="stuNative != null">
+                stu_native,
+            </if>
+            <if test="stuBirthday != null">
+                stu_birthday,
+            </if>
+            <if test="major != null">
+                major_id,
+            </if>
+            <if test="stuClass != null">
+                stu_class,
+            </if>
+            <if test="stuDorm != null">
+                stu_dorm,
+            </if>
+            <if test="politic != null">
+                politic_id,
+            </if>
+            <if test="nation != null">
+                nation_id,
+            </if>
+            <if test="stuIDcard != null">
+                stu_IDcard,
+            </if>
+            <if test="stuAddress != null">
+                stu_address,
+            </if>
+            <if test="schoolRoll != null">
+                school_roll_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="stuId != null">
+                #{stuId},
+            </if>
+            <if test="stuName != null">
+                #{stuName},
+            </if>
+            <if test="stuSex != null">
+                #{stuSex},
+            </if>
+            <if test="stuPassword != null">
+                #{stuPassword},
+            </if>
+            <if test="stuNative != null">
+                #{stuNative},
+            </if>
+            <if test="stuBirthday != null">
+                #{stuBirthday},
+            </if>
+            <if test="major != null">
+                #{major.id},
+            </if>
+            <if test="stuClass != null">
+                #{stuClass},
+            </if>
+            <if test="stuDorm != null">
+                #{stuDorm},
+            </if>
+            <if test="politic != null">
+                #{politic.id},
+            </if>
+            <if test="nation != null">
+                #{nation.id},
+            </if>
+            <if test="stuIDcard != null">
+                #{stuIDcard},
+            </if>
+            <if test="stuAddress != null">
+                #{stuAddress},
+            </if>
+            <if test="schoolRoll != null">
+                #{schoolRoll.id},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByID" parameterType="student">
+        update student
+        <set>
+            <if test="stuName != null">
+                stu_name = #{stuName},
+            </if>
+            <if test="stuSex != null">
+                stu_sex = #{stuSex},
+            </if>
+            <if test="stuPassword != null">
+                stu_password = #{stuPassword},
+            </if>
+            <if test="stuNative != null">
+                stu_native = #{stuNative},
+            </if>
+            <if test="stuBirthday != null">
+                stu_birthday = #{stuBirthday},
+            </if>
+            <if test="major != null">
+                major_id = #{major.id},
+            </if>
+            <if test="stuClass != null">
+                stu_class = #{stuClass},
+            </if>
+            <if test="stuDorm != null">
+                stu_dorm = #{stuDorm},
+            </if>
+            <if test="politic != null">
+                politic_id = #{politic.id},
+            </if>
+            <if test="nation != null">
+                nation_id = #{nation.id},
+            </if>
+            <if test="stuIDcard != null">
+                stu_IDcard = #{stuIDcard},
+            </if>
+            <if test="stuAddress != null">
+                stu_address = #{stuAddress},
+            </if>
+            <if test="schoolRoll != null">
+                school_roll_id = #{schoolRoll.id},
+            </if>
+        </set>
+        where stu_id = #{stuId}
+    </update>
+
+    <update id="updateSchoolRoll" parameterType="student">
+        update student
+        set school_roll_id = #{schoolRoll.id}
+        where stu_id = #{stuId}
+    </update>
+
+</mapper>

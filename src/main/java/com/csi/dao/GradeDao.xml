@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.csi.dao.GradeDao">
+
+    <!--结果集映射-->
+    <resultMap id="gradeResult" type="grade">
+        <id column="id" property="id"></id>
+        <result column="grade" property="grade"></result>
+        <result column="term" property="term"></result>
+        <result column="classroom" property="classroom"></result>
+
+        <!--一对一映射-->
+        <association property="subject" column="sub_id" select="com.csi.dao.SubjectDao.findById"></association>
+        <association property="teacher" column="tea_id" select="com.csi.dao.TeacherDao.findById"></association>
+        <association property="student" column="stu_id" select="com.csi.dao.StudentDao.findById"></association>
+        <association property="major" column="major_id" select="com.csi.dao.MajorDao.findById"></association>
+
+    </resultMap>
+
+    <select id="findByLike" parameterType="map" resultMap="gradeResult">
+        select * from grade
+        where 1=1
+        <if test="stuId != null">
+          and stu_id like concat('%',#{stuId},'%')
+        </if>
+        <if test="majorId != null">
+            and major_id=#{majorId}
+        </if>
+        <if test="classroom != null">
+            and classroom like concat('%',#{classroom},'%')
+        </if>
+        <if test="subId != null">
+            and sub_id=#{subId}
+        </if>
+        <if test="teaId != null">
+            and tea_id=#{teaId}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="grade">
+    insert into grade (stu_id, sub_id,
+      grade, term, tea_id,
+      major_id, classroom)
+    values (#{student.stuId,jdbcType=VARCHAR}, #{subject.id,jdbcType=INTEGER},
+      #{grade,jdbcType=DOUBLE}, #{term,jdbcType=VARCHAR}, #{teacher.teaId,jdbcType=INTEGER},
+      #{student.major.id,jdbcType=INTEGER}, #{student.stuClass,jdbcType=VARCHAR})
+  </insert>
+
+    <update id="update" parameterType="grade">
+        update grade
+        set
+        stu_id = #{student.id,jdbcType=VARCHAR},
+        sub_id = #{subject.id,jdbcType=INTEGER},
+        grade = #{grade,jdbcType=DOUBLE},
+        term = #{term,jdbcType=VARCHAR},
+        tea_id = #{teacher.id,jdbcType=INTEGER},
+        major_id = #{major.id,jdbcType=INTEGER},
+        classroom = #{classroom,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

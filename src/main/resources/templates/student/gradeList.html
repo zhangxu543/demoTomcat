@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>学生信息</title>
+    <meta name="description" content="学生信息">
+    <meta name="keywords" content="学生信息">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <link rel="stylesheet" th:href="@{/../plugins/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/../css/style.css}">
+</head>
+
+<body class="hold-transition">
+<div id="app">
+    <div class="app-container">
+        <h2 class="titleInfo"><span>成绩列表</span></h2>
+
+        <div class="box common-table-border" style="margin:8px 0 0;">
+            <div class="box common-table-border" style="margin:8px 0 0;">
+
+                <template>
+                    <el-table
+                            :data="grades.slice((currentPage-1)*pageSize,currentPage*pageSize)"
+                            style="width: 100%">
+
+                        <el-table-column
+                                width="100"
+                                prop="student.stuId"
+                                label="学号">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="student.stuName"
+                                label="姓名">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="student.stuSex"
+                                label="性别">
+                        </el-table-column>
+                        <el-table-column
+                                width="100"
+                                prop="classroom"
+                                label="班级">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="subject.name"
+                                label="科目">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="teacher.teaName"
+                                label="任课教师">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="grade"
+                                label="成绩">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="100"
+                                prop="subject.credit"
+                                label="所占学分">
+                        </el-table-column>
+
+                        <el-table-column
+                                width="150"
+                                prop="major.name"
+                                label="专业">
+                        </el-table-column>
+
+
+                    </el-table>
+                    <!-- 分页器 -->
+                    <div class="block" style="margin-top:15px;">
+                        <el-pagination align='center' @size-change="handleSizeChange"
+                                       @current-change="handleCurrentChange"
+                                       :current-page="currentPage"
+                                       :page-sizes="[1,5,10,20]"
+                                       :page-size="pageSize"
+                                       layout="total, sizes, prev, pager, next, jumper"
+                                       :total="grades.length">
+                        </el-pagination>
+                    </div>
+                </template>
+
+
+            </div>
+            <!-- end -->
+        </div>
+
+    </div>
+</div>
+</body>
+<!-- 引入组件库 -->
+
+<script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+<script th:src="@{/../js/vue.js}"></script>
+<script th:src="@{/../js/element-ui.js}"></script>
+<script th:src="@{/../js/base.js}"></script>
+<script th:src="@{/../js/axios-0.18.0.js}"></script>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                result: {
+                    code: '',
+                    message: '',
+                },
+                grades: [],
+
+                currentPage: 1, // 当前页码
+                total: 20, // 总条数
+                pageSize: 5,// 每页的数据条数
+
+                tableKey: 0,
+                pagination: {
+                    total: 0,
+                    pageNum: 1,
+                    pageSize: 10
+                },
+
+                loading: false,
+                items: [],
+                rules: {},
+
+            }
+        },
+
+        methods: {
+            findAll: function () {
+                axios.get("/grade/findByStuId").then(response => {
+                    this.currentPage = 1;
+                    this.grades = response.data;
+                }).catch(error => {
+                    console.dir(error);
+                });
+            },
+
+            /*------------------------*/
+
+            //清除
+            handleRest() {
+
+            },
+
+            handleSizeChange(val) {
+                console.log(`每页 ${val} 条`);
+                this.currentPage = 1;
+                this.pageSize = val;
+            },
+            //当前页改变时触发 跳转其他页
+            handleCurrentChange(val) {
+                console.log(`当前页: ${val}`);
+                this.currentPage = val;
+            },
+
+            // 删除
+            handleDeleted(row) {
+                this.$confirm('此操作将永久删除方向 ' + ', 是否继续?', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    var t = this;
+                }).catch(() => {
+                    this.$message.info('已取消操作!')
+                });
+            }
+        },
+
+        mounted: function () {
+            //挂载完成后，调用查询全部的方法
+            this.findAll();
+        }
+    })
+</script>
+</html>

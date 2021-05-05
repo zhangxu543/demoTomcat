@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.csi.dao.TeacherDao">
+
+    <!--结果集映射-->
+    <resultMap id="teacherResult" type="teacher">
+        <id column="tea_id" property="teaId"></id>
+        <result column="tea_password" property="teaPassword"></result>
+        <result column="tea_name" property="teaName"></result>
+        <result column="tea_sex" property="teaSex"></result>
+        <result column="tea_phone" property="teaPhone"></result>
+        <result column="tea_address" property="teaAddress"></result>
+        <result column="tea_state" property="teaState"></result>
+
+        <!--一对一映射-->
+        <association property="dept" column="tea_dept_id" select="com.csi.dao.TeaDeptDao.findById"></association>
+        <association property="rank" column="tea_rank_id" select="com.csi.dao.TeaRankDao.findById"></association>
+
+    </resultMap>
+
+    <select id="findByLike" parameterType="map" resultMap="teacherResult">
+        select * from teacher
+        <where>
+            1=1
+            <if test="teaId != null">
+                and tea_id like concat('%',#{teaId},'%')
+            </if>
+            <if test="teaName != null">
+                and tea_name like concat('%',#{teaName},'%')
+            </if>
+            <if test="tea_dept_id != null">
+                and tea_dept_id=#{tea_dept_id}
+            </if>
+            <if test="tea_rank_id != null">
+                and tea_rank_id=#{tea_rank_id}
+            </if>
+        </where>
+
+
+    </select>
+
+    <select id="findById" parameterType="string" resultMap="teacherResult">
+        select * from teacher where tea_id=#{teaId}
+    </select>
+
+    <select id="login" parameterType="string" resultMap="teacherResult">
+        select * from teacher where tea_id=#{teaId} and tea_password=#{password}
+    </select>
+
+    <insert id="insert" parameterType="com.csi.domain.Teacher">
+    insert into teacher (tea_id, tea_password, tea_name,
+      tea_sex, tea_phone, tea_address,
+      tea_dept_id, tea_state, tea_rank_id
+      )
+    values (
+      #{teaId,jdbcType=VARCHAR},
+      #{teaPassword,jdbcType=VARCHAR},
+      #{teaName,jdbcType=VARCHAR},
+      #{teaSex,jdbcType=VARCHAR},
+      #{teaPhone,jdbcType=VARCHAR},
+      #{teaAddress,jdbcType=VARCHAR},
+      #{dept.id,jdbcType=INTEGER},
+      #{teaState,jdbcType=VARCHAR},
+      #{rank.id,jdbcType=INTEGER})
+    </insert>
+
+    <update id="updateByID" parameterType="teacher">
+        update teacher
+        set tea_password = #{teaPassword,jdbcType=VARCHAR},
+        tea_name = #{teaName,jdbcType=VARCHAR},
+        tea_sex = #{teaSex,jdbcType=VARCHAR},
+        tea_phone = #{teaPhone,jdbcType=VARCHAR},
+        tea_address = #{teaAddress,jdbcType=VARCHAR},
+        tea_dept_id = #{dept.id,jdbcType=INTEGER},
+        tea_state = #{teaState,jdbcType=VARCHAR},
+        tea_rank_id = #{rank.id,jdbcType=INTEGER}
+        where tea_id = #{teaId,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>学生信息管理系统</title>
+    <!-- import CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- import Vue before Element -->
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <!-- import JavaScript -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1/jquery.min.js}"></script>
+    <script th:src="@{/js/element-ui.js}" ></script>
+    <script th:src="@{/js/axios-0.18.0.js}" ></script>
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+        }
+
+        .store-login {
+            background-color: white;
+            height: 100%;
+            position: relative;
+        }
+
+        .bg-login {
+            /*background: url("../../public/img/3Dbg01.jpg") no-repeat;*/
+            /*background-size: 100% 100%;*/
+            position: relative;
+            height: 100%;
+            opacity: 0.8;
+            z-index: 1;
+        }
+
+        .bg-login > li {
+            list-style: none;
+            /*display: none;*/
+            position: relative;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .bg-login > li > img {
+            width: 100%;
+            height: 100%;
+            opacity: 0.9;
+            transition: ease .5s;
+        }
+
+        .login-s {
+            position: absolute;
+            width: 350px;
+            height: 400px;
+            background-color: rgba(57, 86, 123,1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+            z-index: 2;
+            box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .login_form {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0 30px;
+        }
+    </style>
+</head>
+<body>
+<div class="store-login" id="app">
+    <!-- 背景  -->
+    <div class="bg-login">
+        <li>
+            <img th:src="@{/asserts/img/login.jpg}">
+        </li>
+    </div>
+    <div class="login-s">
+        <!-- 登录表单 -->
+        <el-form :model="loginForm" ref="LoginFormRef" :rules="loginFormRules" label-width="0px" class="login_form">
+            <!-- 用户名 -->
+            <el-form-item prop="username">
+                <el-input placeholder="请输入账号" v-model="loginForm.username" prefix-icon="iconfont icon-user"></el-input>
+            </el-form-item>
+            <!-- 密码 -->
+            <el-form-item prop="password">
+                <el-input placeholder="请输入密码" type="password" v-model="loginForm.password" prefix-icon="iconfont icon-3702mima"></el-input>
+            </el-form-item>
+
+            <el-form-item prop="status">
+                <el-radio v-model="loginForm.status" label="1" style="color: black">学生</el-radio>
+                <el-radio v-model="loginForm.status" label="2" style="color: black">教师</el-radio>
+                <el-radio v-model="loginForm.status" label="3" style="color: black">管理员</el-radio>
+            </el-form-item>
+            <!-- 按钮 -->
+            <el-form-item class="btns">
+                <el-button type="primary" @click="login()">登录</el-button>
+                <el-button type="info" @click="resetLoginForm">重置</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+</div>
+
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function () {
+            return {
+                //数据绑定
+                index: 0,
+                loginForm: {
+                    status:'1',
+                    username: '',
+                    password: ''
+                },
+                //表单验证规则
+                loginFormRules: {}
+            }
+        },
+        methods: {
+            login:function (){
+                if (this.loginForm.username.length > 0 && this.loginForm.password.length > 0)
+                    axios.post("/login/" + this.loginForm.username + "/" + this.loginForm.password + "/" + this.loginForm.status).then(response => {
+                        if (response.data.code == 3) {
+                            window.location.href = "/adminIndex";
+                        } else if (response.data.code == 2) {
+                            window.location.href = "/teacherIndex";
+                        } else if (response.data.code == 1) {
+                            window.location.href = "/studentIndex";
+                        } else {
+                            this.$message.error(response.data.message);
+                        }
+
+
+                    }).catch(error => {
+                        console.dir(error)
+                    })
+                else
+                    this.$message.error("账号密码不可为空！");
+            }
+
+        }
+    })
+</script>
+
+</html>
