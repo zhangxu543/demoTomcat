@@ -9,6 +9,10 @@
         <result column="dept_id" property="dept_id"></result>
         <result column="dept_name" property="dept_name"></result>
     </resultMap>
+    <select id="findById" resultMap="majorResult" parameterType="int">
+        select id,name,dept_id,(select name from major where id=a.dept_id) dept_name
+        from major a where id=#{id}
+    </select>
 
     <select id="list" resultMap="majorResult">
         select id,name,dept_id,(select name from major where id=a.dept_id) dept_name

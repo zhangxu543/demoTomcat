@@ -2,18 +2,22 @@ package com.csi.controller;
 
 import com.csi.domain.Grade;
 import com.csi.domain.Student;
+import com.csi.domain.Subject;
 import com.csi.domain.Teacher;
 import com.csi.service.GradeService;
 import com.csi.service.StudentService;
+import com.csi.util.PoiUpload;
 import com.csi.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,48 @@ public class GradeController {
     private GradeService service;
     @Autowired
     private StudentService studentService;
+    @Autowired
+    private PoiUpload poiUpload;
+
+    @RequestMapping("/insertExcel")
+    @ResponseBody
+    public String insertExcel(HttpServletRequest request, @RequestParam() MultipartFile file) throws Exception {
+
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        InputStream inputStream =null;
+        List<List<Object>> list = null;
+        //MultipartFile file = multipartRequest.getFile("filename");
+        if(file.isEmpty()){
+            return "文件不能为空";
+        }
+        inputStream = file.getInputStream();
+        list =poiUpload.getBankListByExcel(inputStream,file.getOriginalFilename());
+        inputStream.close();
+        //连接数据库部分
+        try {
+            for (int i = 0; i < list.size(); i++) {
+                List<Object> lo = list.get(i);
+                Grade grade=new Grade();
+                Student student = studentService.findById(String.valueOf(lo.get(0)));
+                grade.setStudent(student);
+                Subject subject=new Subject();
+                String subId=String.valueOf(lo.get(2));
+                double aa=Double.parseDouble(subId);
+                subject.setId((int)aa);
+                grade.setSubject(subject);
+                Double grade0=Double.valueOf(String.valueOf(lo.get(4)));
+                grade.setGrade(grade0);
+                grade.setTerm(String.valueOf(lo.get(5)));
+                Teacher teacher=new Teacher();
+                teacher.setTeaId(String.valueOf(lo.get(6)));
+                grade.setTeacher(teacher);
+                service.insert(grade);
+            }
+        }catch(Exception e){
+            return "上传失败";
+        }
+        return "上传成功";
+    }
 
     @RequestMapping("/findByLike")
     public List<Grade> findByLike(@RequestBody Grade grade) {

@@ -20,8 +20,16 @@ public class FileController {
 
     @RequestMapping("/student")
     public String downloadFile(HttpServletRequest request,
-                             HttpServletResponse response) throws UnsupportedEncodingException {
-        String fileName = "student.xlsx";// 设置文件名，根据业务需要替换成要下载的文件名
+                             HttpServletResponse response)  {
+        String fileName = "student.xlsx";
+        return download(request, response, fileName);
+
+    }
+
+    @RequestMapping("/grade")
+    public String downloadFileGrade(HttpServletRequest request,
+                               HttpServletResponse response) {
+        String fileName = "grades.xlsx";
         return download(request, response, fileName);
 
     }

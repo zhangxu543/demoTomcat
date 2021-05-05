@@ -18,4 +18,5 @@ public interface StudentService {
     void updateByID(Student student);
     void updateSchoolRoll(Student student);
     List<Student> findByLike(Map<String,Object> map);
+    byte[] exportStudent(List<Student> list);
 }

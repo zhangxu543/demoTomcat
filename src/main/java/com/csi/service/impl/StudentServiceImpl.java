@@ -3,6 +3,7 @@ package com.csi.service.impl;
 import com.csi.dao.StudentDao;
 import com.csi.domain.Student;
 import com.csi.service.StudentService;
+import com.csi.util.StudentExportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,5 +50,10 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findByLike(Map<String, Object> map) {
         return dao.findByLike(map);
+    }
+
+    @Override
+    public byte[] exportStudent(List<Student> list) {
+        return StudentExportUtil.write2Excel(list);
     }
 }

@@ -16,9 +16,12 @@
 
 <body class="hold-transition">
 <div id="app">
-
-    <div class="app-container">
+    <div class="content-header common-search-border1">
         <h2 class="titleInfo"><span>成绩列表</span></h2>
+        <el-button class="butAdd" @click="handleCreate"><i class="el-icon-plus" aria-hidden="true"></i> 批量新增成绩信息
+        </el-button>
+    </div>
+    <div class="app-container">
 
         <div class="box common-search-border2">
             <div class="filter-container">
@@ -166,6 +169,35 @@
 
             </div>
             <!-- end -->
+
+            <el-dialog title="批量新增成绩" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+
+                <el-button @click="download">模板下载</el-button>
+                <h6 class="titleInfo"><span>上传文件前先下载模板</span></h6>
+                <el-form ref="form" label-width="80px">
+
+                    <el-upload
+                            style="display: inline-block"
+                            :limit="1"
+                            class="upload-demo"
+                            ref="upload"
+                            accept=".xlsx"
+                            :action="url"
+                            :file-list="fileList"
+                            :auto-upload="true"
+                            :on-exceed="handleExceed"
+                            :on-preview="handlePreview"
+                            :on-remove="handleRemove"
+                            :on-success="handleOnSuccess">
+                        <el-button class="butOK" type="primary">选取文件</el-button>
+                    </el-upload>
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="handleCreateCancel">取 消</el-button>
+                </div>
+
+            </el-dialog>
         </div>
 
     </div>
@@ -184,6 +216,8 @@
         el: '#app',
         data() {
             return {
+                fileList: [],
+                url: '/grade/insertExcel',
                 result: {
                     code: '',
                     message: '',
@@ -363,21 +397,46 @@
                         }
                     }]
                 },
-                stuDepts:[],
-                major:{},
-                majors:[],
+                stuDepts: [],
+                major: {},
+                majors: [],
                 rules: {},
-                subjects:[],
-                teachers:[]
+                subjects: [],
+                teachers: []
 
             }
         },
 
         methods: {
-            findTeachers:function (){
-                axios.post("/teacher/findAll").then(response =>{
-                    this.teachers=response.data;
-                }).catch(error =>{
+            download: function () {
+                window.location.href = "file/grade"
+            },
+            handleExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handleOnSuccess(response, file, fileList) {
+                if (response.code === 0) {
+                    return this.$message.error(response.msg)
+                } else {
+                    this.$message.success('文件上传成功')
+                    this.findAll();
+                    this.fileList = [];
+                    this.dialogFormVisible = false;
+                }
+                this.fileList = fileList;
+
+
+            },
+            findTeachers: function () {
+                axios.post("/teacher/findAll").then(response => {
+                    this.teachers = response.data;
+                }).catch(error => {
                     console.dir(error)
                 })
             },
@@ -388,18 +447,18 @@
                     console.dir(error);
                 });
             },
-            findDept:function (){
-                axios.post("/major/findByDept").then(response =>{
+            findDept: function () {
+                axios.post("/major/findByDept").then(response => {
                     this.stuDepts = response.data;
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
             },
-            findMajor:function (){
-                this.grade.major.id='';
-                axios.post("/major/findMajor",this.major).then(response =>{
+            findMajor: function () {
+                this.grade.major.id = '';
+                axios.post("/major/findMajor", this.major).then(response => {
                     this.majors = response.data;
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
             },
@@ -428,11 +487,11 @@
                 this.grade.student.stuId = '';
                 this.grade.classroom = '';
                 this.grade.teacher.teaId = '';
-                this.grade.subject.id='';
-                this.grade.major.id='';
-                this.grade.major.name='';
-                this.major={};
-                this.majors=[];
+                this.grade.subject.id = '';
+                this.grade.major.id = '';
+                this.grade.major.name = '';
+                this.major = {};
+                this.majors = [];
             },
 
             handleSizeChange(val) {
@@ -445,25 +504,15 @@
                 console.log(`当前页: ${val}`);
                 this.currentPage = val;
             },
-           /* // 新增
+            // 新增
             handleCreate() {
-                this.findDept();
                 this.dialogFormVisible = true;
             },
-            handleCreate0() {
-                this.dialogFormVisible0 = true;
-            },
+
             //新增取消
             handleCreateCancel() {
-                this.major = this.majorNull;
                 this.dialogFormVisible = false;
             },
-            //新增取消
-            handleCreateCancel0() {
-                this.major1 = this.majorNull;
-                this.dialogFormVisible0 = false;
-            },
-*/
             // 删除
             handleDeleted(row) {
                 this.$confirm('此操作将永久删除方向 ' + ', 是否继续?', '提示', {

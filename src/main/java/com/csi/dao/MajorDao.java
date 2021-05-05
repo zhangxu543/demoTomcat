@@ -17,7 +17,6 @@ import java.util.List;
 @Repository
 public interface MajorDao {
 
-    @Select("SELECT * FROM major WHERE id=#{id}")
     Major findById(int id) ;
 
     @Select("SELECT * FROM major WHERE name=#{name}")
