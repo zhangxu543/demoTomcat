@@ -174,6 +174,26 @@ public class StudentController {
         return result;
     }
 
+    @RequestMapping("/updatePass/{stuId}/{oldPass}/{pass}")
+    @ResponseBody
+    public Result updatePass(HttpSession session,@PathVariable("stuId") String stuId,
+                             @PathVariable("oldPass") String oldPass,
+                             @PathVariable("pass") String pass){
+        Student student = studentService.login(stuId, oldPass);
+        Result result = new Result() ;
+        if(student!=null){
+            student.setStuPassword(pass);
+            studentService.updateByID(student);
+            result.setMessage("修改成功！");
+            result.setCode(200);
+        }else{
+            result.setMessage("原密码不对！");
+            result.setCode(400);
+        }
+
+        return result;
+    }
+
     @RequestMapping("findById/{id}")
     public ModelAndView findById(@PathVariable(value = "id") String id) {
         logger.info("学生id======"+id);

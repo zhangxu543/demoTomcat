@@ -26,9 +26,7 @@
                     <li style="width: 48%">【姓名】：<span th:text="${studentInfo.stuName}"></span></li>
                     <li style="width: 48%">【性别】：<span th:text="${studentInfo.stuSex}"></span></li>
                     <li style="width: 48%">【密码】：<span th:text="${studentInfo.stuPassword}"></span></li>
-                    <li style="width: 48%">【籍贯】：<span th:text="${studentInfo.stuNative}"></span></li>
                     <li style="width: 48%">【生日】：<span th:text="${studentInfo.stuBirthday}"></span></li>
-
                     <li style="width: 48%">【专业】：<span th:text="${studentInfo.major.name}"></span></li>
                     <li style="width: 48%">【班级】：<span th:text="${studentInfo.stuClass}"></span></li>
                     <li style="width: 48%">【宿舍】：<span th:text="${studentInfo.stuDorm}"></span></li>
@@ -49,7 +47,7 @@
     </div>
 
     <!-- 编辑方向弹层 -->
-    <el-dialog title="新增学生" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+    <el-dialog title="个人信息修改" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
         <el-form label-width="120px" :model="student" :rules="rules" ref="student">
 
             <el-form-item label="学号：" prop="stuId">
@@ -66,7 +64,7 @@
 
             <el-form-item label="出生日期" >
                 <el-date-picker
-                        style="width: 120px"
+                        style="width: 160px"
                         value-format="yyyy-MM-dd"
                         v-model="student.stuBirthday"
                         type="date"

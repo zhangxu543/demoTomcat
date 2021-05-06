@@ -37,7 +37,7 @@
                         </div>
                         <el-dropdown-menu slot="dropdown">
                             <el-dropdown-item divided>
-                                <span style="display:block;">修改密码</span>
+                                <span style="display:block;" @click="handleCreate()">修改密码</span>
                             </el-dropdown-item>
                             <el-dropdown-item divided>
                                 <span style="display:block;"><a href="#" @click="logout()">退出</a></span>
@@ -62,6 +62,39 @@
             </el-container>
         </el-container>
     </el-container>
+    <input hidden="" th:value="${teacherInfo.teaId}" ref="getValueId">
+    <input hidden="" th:value="${teacherInfo.teaName}" ref="getValueName">
+
+    <el-dialog title="修改密码" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
+
+        <el-form label-width="120px" :model="ruleForm" :rules="rules" ref="ruleForm">
+
+            <el-form-item label="学号：" prop="stuId">
+                <el-input readonly v-model="ruleForm.stuId" autocomplete="off"></el-input>
+            </el-form-item>
+
+            <el-form-item label="姓名：" prop="stuName">
+                <el-input readonly v-model="ruleForm.stuName" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="请输入密码" prop="oldPass">
+                <el-input type="password" v-model="ruleForm.oldPass" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="请输入新密码" prop="pass">
+                <el-input type="password" v-model="ruleForm.pass" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码" prop="checkPass">
+                <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
+            </el-form-item>
+
+        </el-form>
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="handleCreateCancel">取 消</el-button>
+            <el-button type="primary" @click="update()">确 定</el-button>
+        </div>
+    </el-dialog>
+
 </div>
 </body>
 
@@ -110,6 +143,25 @@
         el: '#app',
         // router,
         data() {
+            var validatePass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                } else {
+                    if (this.ruleForm.checkPass !== '') {
+                        this.$refs.ruleForm.validateField('checkPass');
+                    }
+                    callback();
+                }
+            };
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.ruleForm.pass) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
             return {
                 userName: sessionStorage.getItem("userName"),
                 visible: false,
@@ -120,7 +172,23 @@
                 winfo: 'winfo',
                 data: [],
                 menuList: [],
-                input: ''
+                input: '',
+                dialogFormVisible:false,
+                ruleForm: {
+                    stuId:'',
+                    stuName:'',
+                    oldPass:'',
+                    pass: '',
+                    checkPass: ''
+                },
+                rules: {
+                    pass: [
+                        {validator: validatePass, trigger: 'blur'}
+                    ],
+                    checkPass: [
+                        {validator: validatePass2, trigger: 'blur'}
+                    ]
+                }
             }
         },
         created() {
@@ -130,6 +198,36 @@
             }
         },
         methods: {
+            update:function (){
+                this.$refs['ruleForm'].validate((valid) => {
+                    if (valid) {
+                        axios.get("/teacher/updatePass/" + this.ruleForm.stuId+"/"+this.ruleForm.oldPass+"/"+this.ruleForm.pass).then(response => {
+                            if(response.data.code == 200){
+                                this.$message.success(response.data.message);
+                            }else {
+                                this.$message.error(response.data.message);
+                            }
+                        }).catch(error => {
+                            console.dir(error);
+                        });
+                        this.dialogFormVisible = false;
+                        this.ruleForm.oldPass='';
+                        this.ruleForm.pass='';
+                        this.ruleForm.checkPass='';
+
+                    }
+
+                });
+
+            },
+            handleCreateCancel() {
+                this.dialogFormVisible = false;
+            },
+            handleCreate() {
+                this.ruleForm.stuId=this.$refs.getValueId.value;
+                this.ruleForm.stuName=this.$refs.getValueName.value;
+                this.dialogFormVisible = true;
+            },
             handleOpen(key, keyPath) {
                 // console.log(key, keyPath);
             },
@@ -139,9 +237,12 @@
             logout(){
                 //window.location.href = "../login.html";
                 // 发送axios请求，通知后台（销毁Session），退出
-                axios.get(app_path+"/user/logout.do").then((response)=>{
-                    if(response.data.flag){
-                        window.location.href = "../login.html";
+                axios.get("/logout").then((response)=>{
+                    if(response.data.code==200){
+                        window.location.href = "index";
+                    }else {
+                        this.$message.error("退出失败！");
+
                     }
                 });
             },

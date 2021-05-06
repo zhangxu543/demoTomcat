@@ -31,6 +31,15 @@ public class LoginController {
     @Autowired
     private TeacherService teacherService;
 
+    @RequestMapping("/logout")
+    @ResponseBody
+    public Result logout(HttpSession session){
+        Result result = new Result() ;
+        session.removeAttribute("user");
+        result.setCode(200);
+        return result;
+    }
+
     @RequestMapping("/login/{id}/{password}/{status}")
     @ResponseBody
     public Result login(HttpSession session, @PathVariable(value = "id")String id, @PathVariable(value = "password") String password, @PathVariable(value = "status") String status){
