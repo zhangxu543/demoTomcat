@@ -67,6 +67,8 @@ public class StudentController {
                 student.setStuSex(String.valueOf(lo.get(3)));
                 student.setStuDorm(String.valueOf(lo.get(5)));
                 Major major = majorService.findByName(String.valueOf(lo.get(4)));
+                if(major==null)
+                    return "专业名称不对";
                 student.setMajor(major);
                 student.setStuPassword("123456");
                 Nation nation=new Nation();
