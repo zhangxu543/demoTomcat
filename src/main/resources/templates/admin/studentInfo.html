@@ -52,15 +52,15 @@
         <el-form label-width="120px" :model="student" :rules="rules" ref="student">
 
             <el-form-item label="学号：" prop="stuId">
-                <el-input v-model="student.stuId" autocomplete="off"></el-input>
+                <el-input readonly v-model="student.stuId" autocomplete="off"></el-input>
             </el-form-item>
 
             <el-form-item label="姓名：" prop="stuName">
-                <el-input v-model="student.stuName" autocomplete="off"></el-input>
+                <el-input readonly v-model="student.stuName" autocomplete="off"></el-input>
             </el-form-item>
 
-            <el-form-item label="专业：" prop="major.id">
-                <el-select v-model="major.id" placeholder="请选择院系" @change="findMajor()">
+            <el-form-item label="院系：" prop="major.dept_id">
+                <el-select v-model="student.major.dept_id" placeholder="请选择院系" @change="findMajor()">
                     <el-option
                             v-for="item in stuDepts"
                             :key="item.id"
@@ -68,6 +68,9 @@
                             :value="item.id">
                     </el-option>
                 </el-select>
+            </el-form-item>
+
+            <el-form-item label="专业：" prop="major.id">
                 <el-select v-model="student.major.id" placeholder="请选择专业">
                     <el-option
                             v-for="item in majors"
@@ -273,7 +276,7 @@
                 })
             },
             findMajor:function (){
-                axios.post("/major/findMajor",this.major).then(response =>{
+                axios.post("/major/findMajor/"+this.student.major.dept_id).then(response =>{
                     this.majors = response.data;
                 }).catch(error =>{
                     console.dir(error)
@@ -289,9 +292,11 @@
             findById:function (){
                 axios.get("/student/findById0/" + this.$refs.getValue.value).then(response => {
                     this.student = response.data;
+                    this.findMajor();
                 }).catch(error => {
                     console.dir(error);
                 });
+
             },
             updateStudent:function () {
                 axios.post("/student/updateStudent", this.student).then(response => {
@@ -309,12 +314,13 @@
                 this.findDept();
                 this.findPolitics();
                 this.findSchoolRolls();
+                //this.findMajor();
                 this.dialogFormVisible = true;
             },
 
             //新增取消
             handleCreateCancel: function () {
-                this.findById();
+
                 this.dialogFormVisible = false;
             },
         },

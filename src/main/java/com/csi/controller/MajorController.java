@@ -6,6 +6,7 @@ import com.csi.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,10 +47,9 @@ public class MajorController {
         return majors;
     }
 
-    @RequestMapping("/findMajor")
-    public List<Major> findMajor(@RequestBody Major stuDept){
-        System.out.println(stuDept);
-        List<Major> majors = majorService.listByDept(stuDept.getId());
+    @RequestMapping("/findMajor/{deptId}")
+    public List<Major> findMajor(@PathVariable("deptId") int deptId){
+        List<Major> majors = majorService.listByDept(deptId);
         logger.info("专业个数======"+majors.size());
         return majors;
     }

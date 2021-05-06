@@ -148,8 +148,8 @@
                         </el-select>
                     </el-form-item>
 
-                    <el-form-item label="专业：" prop="major.id">
-                        <el-select v-model="major.id" placeholder="请选择院系" @change="findMajor()">
+                    <el-form-item label="院系：" prop="major.dept_id">
+                        <el-select v-model="student.major.dept_id" placeholder="请选择院系" @change="findMajor()">
                             <el-option
                                     v-for="item in stuDepts"
                                     :key="item.id"
@@ -157,6 +157,9 @@
                                     :value="item.id">
                             </el-option>
                         </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="专业：" prop="major.id">
                         <el-select v-model="student.major.id" placeholder="请选择专业">
                             <el-option
                                     v-for="item in majors"
@@ -184,7 +187,7 @@
             </el-dialog>
 
             <el-dialog title="奖罚" align="center" :visible.sync="dialogFormVisible0" width="40%" top="8vh">
-                <el-form label-width="120px" :model="awarePunish" :rules="rules" ref="awarePunish">
+                <el-form label-width="120px" :model="awarePunish" ref="awarePunish">
                     <el-form-item label="学号：" prop="stuId">
                         <el-input readonly v-model="awarePunish.student.stuId" autocomplete="off"></el-input>
                     </el-form-item>
@@ -236,7 +239,7 @@
             </el-dialog>
 
             <el-dialog title="学籍变更" align="center" :visible.sync="dialogFormVisible1" width="40%" top="8vh">
-                <el-form label-width="120px" :model="awarePunish" :rules="rules" ref="awarePunish">
+                <el-form label-width="120px" :model="awarePunish" ref="awarePunish">
                     <el-form-item label="学号：" prop="stuId">
                         <el-input readonly v-model="variation.student.stuId" autocomplete="off"></el-input>
                     </el-form-item>
@@ -576,7 +579,32 @@
                 stuDepts: [],
                 major: {},
                 majors: [],
-                rules: {}
+                rules: {
+                    stuId: [
+                        { required: true, message: '请输入学号', trigger: 'blur' },
+                        { min: 6, max: 8, message: '长度在 6 到 8 个字符', trigger: 'blur' }
+                    ],
+                    stuName: [
+                        { required: true, message: '请输入姓名', trigger: 'blur' },
+                    ],
+                    stuSex: [
+                        { required: true, message: '请选择性别', trigger: 'change' }
+                    ],
+                    major: {
+                        dept_id:[
+                            { required: true, message: '请选择院系', trigger: 'change' }
+                        ],
+                        id:[
+                            { required: true, message: '请选择专业', trigger: 'change' }
+                        ]
+                    },
+                    stuClass:[
+                        { required: true, message: '请输入班级', trigger: 'blur' },
+                    ],
+                    stuDorm: [
+                        { required: true, message: '请输入宿舍', trigger: 'blur' },
+                    ]
+                }
 
             }
         },
@@ -646,22 +674,29 @@
                 })
             },
             findMajor: function () {
-                axios.post("/major/findMajor", this.major).then(response => {
+                axios.post("/major/findMajor/"+ this.student.major.dept_id).then(response => {
                     this.majors = response.data;
                 }).catch(error => {
                     console.dir(error)
                 })
             },
             insert: function () {
-                axios.post("/student/insert", this.student).then(response => {
-                    this.$message.success(response.data.message);
-                    this.findAll();
-                    this.student = this.studentnull;
-                    this.major.id = '';
-                }).catch(error => {
-                    console.dir(error)
-                })
-                this.dialogFormVisible = false;
+                this.$refs['student'].validate((valid) => {
+                    if (valid) {
+                        axios.post("/student/insert", this.student).then(response => {
+                            this.$message.success(response.data.message);
+                            this.findAll();
+                            this.student = this.studentnull;
+                            this.major.id = '';
+                        }).catch(error => {
+                            console.dir(error)
+                        })
+                        this.dialogFormVisible = false;
+                    }
+
+                });
+
+
 
             },
 

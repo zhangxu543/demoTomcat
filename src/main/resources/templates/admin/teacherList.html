@@ -143,15 +143,15 @@
             <el-dialog title="新增教师" align="center" :visible.sync="dialogFormVisible" width="40%" top="8vh">
                 <el-form label-width="120px" :model="teacher" :rules="rules" ref="teacher">
 
-                    <el-form-item label="教师编号:"  prop="stuId">
+                    <el-form-item label="教师编号:"  prop="teaId">
                         <el-input v-model="teacher.teaId" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="姓名:" prop="stuName">
+                    <el-form-item label="姓名:" prop="teaName">
                         <el-input v-model="teacher.teaName" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="性别:"  prop="stuSex">
+                    <el-form-item label="性别:"  prop="teaSex">
                         <el-select placeholder="请选择" v-model="teacher.teaSex" autocomplete="off">
                             <el-option :key="item.value"
                                        :label="item.value"
@@ -165,7 +165,7 @@
                         <el-input placeholder="请输入电话" v-model="teacher.teaPhone" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="部门:" prop="dept">
+                    <el-form-item label="部门:" prop="dept.id">
                         <el-select placeholder="请选择" v-model="teacher.dept.id" autocomplete="off">
                             <el-option :key="item.id"
                                        :label="item.name"
@@ -175,7 +175,7 @@
                         </el-select>
                     </el-form-item>
 
-                    <el-form-item label="级别:"  prop="rank">
+                    <el-form-item label="级别:"  prop="rank.id">
                         <el-select placeholder="请选择" v-model="teacher.rank.id" autocomplete="off">
                             <el-option :key="item.id"
                                        :label="item.name"
@@ -193,17 +193,17 @@
                 </div>
             </el-dialog>
             <el-dialog title="修改教师" align="center" :visible.sync="dialogFormVisible1" width="40%" top="8vh">
-                <el-form label-width="120px" :model="teacher1" :rules="rules" ref="teacher1">
+                <el-form label-width="120px" :model="teacher1" :rules="rules"  ref="teacher1">
 
-                    <el-form-item label="教师编号:"  prop="stuId">
-                        <el-input v-model="teacher1.teaId" autocomplete="off"></el-input>
+                    <el-form-item label="教师编号:"  prop="teaId">
+                        <el-input readonly v-model="teacher1.teaId" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="姓名:" prop="stuName">
-                        <el-input v-model="teacher1.teaName" autocomplete="off"></el-input>
+                    <el-form-item  label="姓名:" prop="teaName">
+                        <el-input readonly v-model="teacher1.teaName" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="性别:"  prop="stuSex">
+                    <el-form-item label="性别:"  prop="teaSex">
                         <el-select placeholder="请选择" v-model="teacher1.teaSex" autocomplete="off">
                             <el-option :key="item.value"
                                        :label="item.value"
@@ -217,7 +217,7 @@
                         <el-input placeholder="请输入电话" v-model="teacher1.teaPhone" autocomplete="off"></el-input>
                     </el-form-item>
 
-                    <el-form-item label="部门:" prop="dept">
+                    <el-form-item label="部门:" prop="dept.id">
                         <el-select placeholder="请选择" v-model="teacher1.dept.id" autocomplete="off">
                             <el-option :key="item.id"
                                        :label="item.name"
@@ -227,7 +227,7 @@
                         </el-select>
                     </el-form-item>
 
-                    <el-form-item label="级别:"  prop="rank">
+                    <el-form-item label="级别:"  prop="rank.id">
                         <el-select placeholder="请选择" v-model="teacher1.rank.id" autocomplete="off">
                             <el-option :key="item.id"
                                        :label="item.name"
@@ -262,6 +262,15 @@
     new Vue({
         el: '#app',
         data() {
+            var validatorPhone = function (rule, value, callback) {
+                if (value === '') {
+                    callback(new Error('手机号不能为空'))
+                } else if (!/^1\d{10}$/.test(value)) {
+                    callback(new Error('手机号格式错误'))
+                } else {
+                    callback()
+                }
+            }
             return {
                 result:{
                     code:'',
@@ -356,7 +365,31 @@
                 baseData: base,
                 dialogFormVisible: false,
                 dialogFormVisible1: false,
-                rules: {}
+                rules: {
+                    teaId: [
+                        { required: true, message: '请输入学号', trigger: 'blur' },
+                        { min: 6, max: 8, message: '长度在 6 到 8 个字符', trigger: 'blur' }
+                    ],
+                    teaName: [
+                        { required: true, message: '请输入姓名', trigger: 'blur' },
+                    ],
+                    teaSex: [
+                        { required: true, message: '请选择性别', trigger: 'change' }
+                    ],
+                    teaPhone:[
+                        { required: true, validator: validatorPhone, trigger: 'blur' },
+                    ],
+                    dept: {
+                        id:[
+                            { required: true, message: '请选择部门', trigger: 'change' }
+                        ]
+                    },
+                    rank: {
+                        id:[
+                            { required: true, message: '请选择级别', trigger: 'change' }
+                        ]
+                    }
+                }
 
             }
         },
@@ -377,23 +410,36 @@
               this.dialogFormVisible1=true;
             },
             update1:function (){
-                axios.post("/teacher/update",this.teacher1).then(response =>{
-                    this.$message.success(response.data.message);
-                    this.findAll()
-                }).catch(error =>{
-                    console.dir(error)
-                })
-                this.dialogFormVisible1 = false;
+                this.$refs['teacher1'].validate((valid) => {
+                    if (valid) {
+                        axios.post("/teacher/update",this.teacher1).then(response =>{
+                            this.$message.success(response.data.message);
+                            this.findAll()
+                        }).catch(error =>{
+                            console.dir(error)
+                        })
+                        this.dialogFormVisible1 = false;
+                    }
+
+                });
+
             },
             insert:function (){
-                axios.post("/teacher/insert",this.teacher).then(response =>{
-                    this.$message.success(response.data.message);
-                    this.findAll()
-                    this.teacher=this.teacherNull;
-                }).catch(error =>{
-                    console.dir(error)
-                })
-                this.dialogFormVisible = false;
+
+                this.$refs['teacher'].validate((valid) => {
+                    if (valid) {
+                        axios.post("/teacher/insert",this.teacher).then(response =>{
+                            this.$message.success(response.data.message);
+                            this.findAll()
+                            this.teacher=this.teacherNull;
+                        }).catch(error =>{
+                            console.dir(error)
+                        })
+                        this.dialogFormVisible = false;
+                    }
+
+                });
+
             },
             findAll:function (){
                 axios.post("/teacher/findAll").then(response =>{
