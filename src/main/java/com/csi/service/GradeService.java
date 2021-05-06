@@ -13,6 +13,7 @@ import java.util.Map;
  */
 
 public interface GradeService {
+    Grade findById(int id);
     void insert(Grade grade);
     void update(Grade grade);
     List<Grade> findByLike(Map<String,Object> map);

@@ -16,6 +16,10 @@
         <association property="major" column="major_id" select="com.csi.dao.MajorDao.findById"></association>
 
     </resultMap>
+    <select id="findById" parameterType="int" resultMap="gradeResult">
+        select * from grade
+        where id=#{id}
+    </select>
 
     <select id="findByLike" parameterType="map" resultMap="gradeResult">
         select * from grade
@@ -35,6 +39,9 @@
         <if test="teaId != null">
             and tea_id=#{teaId}
         </if>
+        <if test="term != null">
+            and term like concat('%',#{term},'%')
+        </if>
     </select>
 
     <insert id="insert" parameterType="grade">
@@ -49,11 +56,11 @@
     <update id="update" parameterType="grade">
         update grade
         set
-        stu_id = #{student.id,jdbcType=VARCHAR},
+        stu_id = #{student.stuId,jdbcType=VARCHAR},
         sub_id = #{subject.id,jdbcType=INTEGER},
         grade = #{grade,jdbcType=DOUBLE},
         term = #{term,jdbcType=VARCHAR},
-        tea_id = #{teacher.id,jdbcType=INTEGER},
+        tea_id = #{teacher.teaId,jdbcType=INTEGER},
         major_id = #{major.id,jdbcType=INTEGER},
         classroom = #{classroom,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}

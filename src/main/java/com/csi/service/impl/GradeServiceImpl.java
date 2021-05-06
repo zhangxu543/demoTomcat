@@ -21,6 +21,12 @@ import java.util.Map;
 public class GradeServiceImpl implements GradeService {
     @Autowired
     private GradeDao dao;
+
+    @Override
+    public Grade findById(int id) {
+        return dao.findById(id);
+    }
+
     @Override
     public void insert(Grade grade) {
         dao.insert(grade);

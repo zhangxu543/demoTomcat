@@ -41,8 +41,18 @@ public class GradeController {
     @Autowired
     private PoiUpload poiUpload;
 
+    @RequestMapping("/updateGrade/{id}/{score}")
+    public Result updateGrade(@PathVariable("id") int id ,@PathVariable("score") double score) {
+        Result result = new Result();
+        Grade grade = service.findById(id);
+        grade.setGrade(score);
+        service.update(grade);
+        result.setCode(200);
+        result.setMessage("修改成功！");
+        return result;
+    }
+
     @RequestMapping("/insertExcel")
-    @ResponseBody
     public String insertExcel(HttpServletRequest request, @RequestParam() MultipartFile file) throws Exception {
 
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
@@ -126,6 +136,9 @@ public class GradeController {
         map.put("majorId", grade.getMajor().getId());
         map.put("subId", grade.getSubject().getId());
 
+
+        if(!("".equals(grade.getTerm())))
+            map.put("term",grade.getTerm());
         if (!("".equals(grade.getStudent().getStuId())))
             map.put("stuId", grade.getStudent().getStuId());
 

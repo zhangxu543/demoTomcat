@@ -28,12 +28,12 @@
                 <!-- 搜索栏 -->
                 <el-form :inline="true" :model="grade" ref="grade" class="formInfo" label-width="70px">
                     <el-form-item label="学号" label-width="40px" prop="id">
-                        <el-input placeholder="请输入" v-model="grade.student.stuId" style="width: 100px;"
+                        <el-input placeholder="请输入" v-model="grade.student.stuId" style="width: 90px;"
                                   class="filter-item"></el-input>
                     </el-form-item>
 
                     <el-form-item label="院系" label-width="40px" prop="dept_id">
-                        <el-select style="width: 150px;" v-model="major.id" placeholder="请选择院系" @change="findMajor()">
+                        <el-select style="width: 100px;" v-model="major.id" placeholder="请选择" @change="findMajor()">
                             <el-option
                                     v-for="item in stuDepts"
                                     :key="item.id"
@@ -41,7 +41,7 @@
                                     :value="item.id">
                             </el-option>
                         </el-select>
-                        <el-select style="width: 150px;" v-model="grade.major.id" placeholder="请选择专业">
+                        <el-select style="width: 100px;" v-model="grade.major.id" placeholder="请选择">
                             <el-option
                                     v-for="item in majors"
                                     :key="item.id"
@@ -52,12 +52,12 @@
                     </el-form-item>
 
                     <el-form-item label="班级" label-width="40px" prop="id">
-                        <el-input placeholder="请输入" v-model="grade.classroom" style="width: 100px;"
+                        <el-input placeholder="请输入" v-model="grade.classroom" style="width: 90px;"
                                   class="filter-item"></el-input>
                     </el-form-item>
 
                     <el-form-item label="科目" label-width="40px" prop="subject">
-                        <el-select style="width: 130px;" v-model="grade.subject.id" placeholder="请选择科目">
+                        <el-select style="width: 100px;" v-model="grade.subject.id" placeholder="请选择">
                             <el-option
                                     v-for="item in subjects"
                                     :key="item.id"
@@ -68,7 +68,7 @@
                     </el-form-item>
 
                     <el-form-item label="教师" label-width="40px" prop="teacher">
-                        <el-select style="width: 130px;" v-model="grade.teacher.teaId" placeholder="请选择教师">
+                        <el-select style="width: 100px;" v-model="grade.teacher.teaId" placeholder="请选择">
                             <el-option
                                     v-for="item in teachers"
                                     :key="item.teaId"
@@ -76,6 +76,11 @@
                                     :value="item.teaId">
                             </el-option>
                         </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="学期" label-width="40px" prop="id">
+                        <el-input placeholder="请输入" v-model="grade.term" style="width: 90px;"
+                                  class="filter-item"></el-input>
                     </el-form-item>
 
                     <el-form-item>
@@ -145,10 +150,14 @@
                                 prop="major.name"
                                 label="专业">
                         </el-table-column>
-
+                        <el-table-column
+                                width="150"
+                                prop="term"
+                                label="学期">
+                        </el-table-column>
                         <el-table-column width="150">
                             <template slot-scope="scope">
-                                <el-button type="primary" round @click="delete0(scope.row)">删除</el-button>
+                                <el-button type="primary" round @click="handleCreate1(scope.row)">修改</el-button>
                             </template>
                         </el-table-column>
 
@@ -199,6 +208,37 @@
                 </div>
 
             </el-dialog>
+
+            <el-dialog title="修改成绩" align="center" :visible.sync="dialogFormVisible1" width="40%" top="8vh">
+                <el-form label-width="120px" :model="grade0" :rules="rules" ref="grade0">
+                    <el-form-item  label="学号：" prop="stuId">
+                        <el-input readonly v-model="grade0.student.stuId" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="姓名：" prop="stuName">
+                        <el-input readonly v-model="grade0.student.stuName" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="专业：" prop="major.id">
+                        <el-input readonly v-model="grade0.student.major.name" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="班级：" prop="stuClass">
+                        <el-input readonly v-model="grade0.student.stuClass" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="成绩：" prop="grade">
+                        <el-input type="number"  placeholder="请输入修改后成绩" v-model="grade0.grade" autocomplete="off"></el-input>
+                    </el-form-item>
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="handleCreateCancel1">取 消</el-button>
+                    <el-button type="primary" @click="update1()">确 定</el-button>
+                </div>
+            </el-dialog>
+
+
         </div>
 
     </div>
@@ -225,6 +265,70 @@
                 },
                 grades: [],
                 grade: {
+                    id: '',
+                    student: {
+                        stuId: '',
+                        stuName: '',
+                        stuSex: '',
+                        stuPassword: '',
+                        stuNative: '',
+                        stuBirthday: '',
+                        major: {
+                            id: '',
+                            name: '',
+                            dept_id: ''
+                        },
+                        stuClass: '',
+                        stuDorm: '',
+                        politic: {
+                            id: '',
+                            name: ''
+                        },
+                        nation: {
+                            id: '',
+                            name: ''
+                        },
+                        stuIdcard: '',
+                        stuAddress: '',
+                        schoolRoll: {
+                            id: '',
+                            name: ''
+                        }
+                    },
+                    subject: {
+                        id: '',
+                        name: '',
+                        credit: ''
+                    },
+                    grade: '',
+                    term: '',
+                    teacher: {
+                        teaId: '',
+                        teaPassword: '',
+                        teaName: '',
+                        teaSex: '',
+                        teaPhone: '',
+                        teaAddress: '',
+                        dept: {
+                            id: '',
+                            name: ''
+                        },
+                        rank: {
+                            id: '',
+                            name: ''
+                        },
+                        teaState: ''
+
+                    },
+                    major: {
+                        id: '',
+                        name: '',
+                        dept_id: '',
+                        dept_name: ''
+                    },
+                    classroom: ''
+                },
+                grade0: {
                     id: '',
                     student: {
                         stuId: '',
@@ -368,7 +472,7 @@
                 items: [],
                 baseData: base,
                 dialogFormVisible: false,
-                dialogFormVisible0: false,
+                dialogFormVisible1: false,
                 form: {
                     dirName: ''
                 },
@@ -409,6 +513,19 @@
         },
 
         methods: {
+            update1:function (){
+                axios.get("/grade/updateGrade/" + this.grade0.id+"/"+this.grade0.grade).then(response => {
+                    if(response.data.code == 200){
+                        this.$message.success(response.data.message);
+                    }else {
+                        this.$message.error("修改失败！");
+                    }
+                }).catch(error => {
+                    console.dir(error);
+                });
+                this.dialogFormVisible1=false;
+
+            },
             download: function () {
                 window.location.href = "file/grade"
             },
@@ -511,9 +628,18 @@
                 this.dialogFormVisible = true;
             },
 
+            handleCreate1(row) {
+                this.grade0=row;
+                this.dialogFormVisible1 = true;
+            },
+
             //新增取消
             handleCreateCancel() {
                 this.dialogFormVisible = false;
+            },
+            //新增取消
+            handleCreateCancel1() {
+                this.dialogFormVisible1 = false;
             },
             // 删除
             handleDeleted(row) {
