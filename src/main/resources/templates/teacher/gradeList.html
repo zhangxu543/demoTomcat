@@ -194,7 +194,7 @@
                             accept=".xlsx"
                             :action="url"
                             :file-list="fileList"
-                            :auto-upload="true"
+                            :auto-upload="false"
                             :on-exceed="handleExceed"
                             :on-preview="handlePreview"
                             :on-remove="handleRemove"
@@ -205,6 +205,8 @@
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="handleCreateCancel">取 消</el-button>
+                    <el-button class="butOK" type="primary" @click="uploadExcel()">上 传</el-button>
+
                 </div>
 
             </el-dialog>
@@ -513,6 +515,9 @@
         },
 
         methods: {
+            uploadExcel:function (){
+                this.$refs.upload.submit();
+            },
             update1:function (){
                 axios.get("/grade/updateGrade/" + this.grade0.id+"/"+this.grade0.grade).then(response => {
                     if(response.data.code == 200){

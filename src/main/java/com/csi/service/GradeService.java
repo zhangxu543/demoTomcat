@@ -13,6 +13,7 @@ import java.util.Map;
  */
 
 public interface GradeService {
+    void insertExcel(List<Grade> list);
     Grade findById(int id);
     void insert(Grade grade);
     void update(Grade grade);

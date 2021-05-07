@@ -52,6 +52,16 @@
       #{grade,jdbcType=DOUBLE}, #{term,jdbcType=VARCHAR}, #{teacher.teaId,jdbcType=INTEGER},
       #{student.major.id,jdbcType=INTEGER}, #{student.stuClass,jdbcType=VARCHAR})
   </insert>
+    <insert id="insertExcel" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+         insert into grade (stu_id, sub_id,
+      grade, term, tea_id,
+      major_id, classroom)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+        (#{item.student.stuId},#{item.subject.id},#{item.grade},#{item.term},
+        #{item.teacher.teaId},#{item.student.major.id},#{item.student.stuClass})
+    </foreach>
+    </insert>
 
     <update id="update" parameterType="grade">
         update grade

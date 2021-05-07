@@ -23,6 +23,11 @@ public class GradeServiceImpl implements GradeService {
     private GradeDao dao;
 
     @Override
+    public void insertExcel(List<Grade> list) {
+        dao.insertExcel(list);
+    }
+
+    @Override
     public Grade findById(int id) {
         return dao.findById(id);
     }

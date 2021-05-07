@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,7 @@ public class GradeController {
         inputStream.close();
         //连接数据库部分
         try {
+            List<Grade> list1=new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
                 List<Object> lo = list.get(i);
                 Grade grade=new Grade();
@@ -83,8 +85,10 @@ public class GradeController {
                 Teacher teacher=new Teacher();
                 teacher.setTeaId(String.valueOf(lo.get(6)));
                 grade.setTeacher(teacher);
-                service.insert(grade);
+                list1.add(grade);
             }
+            logger.info("学生个数==========="+list1.size());
+            service.insertExcel(list1);
         }catch(Exception e){
             return "上传失败";
         }
