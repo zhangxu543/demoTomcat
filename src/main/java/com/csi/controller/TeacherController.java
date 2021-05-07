@@ -3,6 +3,7 @@ package com.csi.controller;
 import com.csi.domain.Student;
 import com.csi.domain.Teacher;
 import com.csi.service.TeacherService;
+import com.csi.util.MD5Utils;
 import com.csi.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ public class TeacherController {
     public Result updatePass(HttpSession session,@PathVariable("teaId") String teaId,
                              @PathVariable("oldPass") String oldPass,
                              @PathVariable("pass") String pass){
+        oldPass=MD5Utils.stringToMD5(oldPass);
+        pass=MD5Utils.stringToMD5(pass);
         Teacher teacher = service.login(teaId, oldPass);
         Result result = new Result() ;
         if(teacher!=null){
@@ -94,7 +97,7 @@ public class TeacherController {
     public Result insert(@RequestBody Teacher teacher){
         Result result = new Result() ;
         teacher.setTeaState("否");
-        teacher.setTeaPassword("123456");
+        teacher.setTeaPassword(MD5Utils.stringToMD5("123456"));
         service.insert(teacher);
         logger.info("新增教师信息======"+teacher);
         result.setMessage("添加成功！");

@@ -49,7 +49,20 @@
             </if>
         </where>
     </select>
-
+    <insert id="insertExcel" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        insert into student (stu_id, stu_name,stu_sex,
+        stu_password, stu_native, stu_birthday,major_id,
+        stu_class, stu_dorm,politic_id,nation_id,stu_IDcard,
+        stu_address,school_roll_id)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.stuId},#{item.stuName},#{item.stuSex},
+            #{item.stuPassword},#{item.stuNative},#{item.stuBirthday},#{item.major.id},
+            #{item.stuClass},#{item.stuDorm},#{item.politic.id},
+            #{item.nation.id},#{item.stuIDcard},#{item.stuAddress},
+            #{item.schoolRoll.id})
+        </foreach>
+    </insert>
     <insert id="insert" parameterType="student">
         insert into student
         <trim prefix="(" suffix=")" suffixOverrides=",">

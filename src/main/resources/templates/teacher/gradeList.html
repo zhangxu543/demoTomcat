@@ -192,8 +192,8 @@
                             class="upload-demo"
                             ref="upload"
                             accept=".xlsx"
-                            :action="url"
-                            :file-list="fileList"
+                            action=""
+                            :http-request="getFile"
                             :auto-upload="false"
                             :on-exceed="handleExceed"
                             :on-preview="handlePreview"
@@ -515,8 +515,25 @@
         },
 
         methods: {
+            getFile(item) {
+                this.fileList.push(item.file);
+            },
             uploadExcel:function (){
                 this.$refs.upload.submit();
+                if(this.fileList!=""){
+                    const fd = new FormData();
+                    this.fileList.forEach(function (file) {
+                        fd.append('file',file);
+                    })
+                    axios.post("/grade/insertExcel",fd).then(response => {
+                        this.$message.success(response.data);
+                    }).catch(error =>{
+                        console.dir(error)
+                    })
+                    this.dialogFormVisible = false;
+                }else {
+                    this.$message.warning('请选择文件')
+                }
             },
             update1:function (){
                 axios.get("/grade/updateGrade/" + this.grade0.id+"/"+this.grade0.grade).then(response => {

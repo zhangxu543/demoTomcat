@@ -279,27 +279,26 @@
                 <el-button @click="download">模板下载</el-button>
                 <h6 class="titleInfo"><span>上传文件前先下载模板</span></h6>
                 <el-form label-width="120px">
-
-                        <el-upload
+                    <el-upload
                                 ref="upload"
                                 class="upload-demo"
-                                :action="url"
                                 accept=".xlsx"
                                 :limit=limit
-                                :auto-upload="true"
+                                action=""
+                                :http-request="getFile"
+                                :auto-upload="false"
                                 :on-remove="handleRemove"
                                 :on-exceed="handleExceed"
                                 :on-success="handleSuccess"
                                 :on-preview="handlePreview"
-                                :file-list="fileList"
                         >
                             <el-button class="butOK" type="primary">选取文件</el-button>
                         </el-upload>
 
-
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="handleCreateCancel2">取 消</el-button>
+                    <el-button class="butOK" type="primary" @click="uploadExcel()">上 传</el-button>
                 </div>
             </el-dialog>
 
@@ -610,6 +609,26 @@
         },
 
         methods: {
+            getFile(item) {
+                this.fileList.push(item.file);
+            },
+            uploadExcel:function (){
+                this.$refs.upload.submit();
+                if(this.fileList!=""){
+                    const fd = new FormData();
+                    this.fileList.forEach(function (file) {
+                        fd.append('file',file);
+                    })
+                    axios.post("/student/insertExcel",fd).then(response => {
+                        this.$message.success(response.data);
+                    }).catch(error =>{
+                        console.dir(error)
+                    })
+                    this.dialogFormVisible2 = false;
+                }else {
+                    this.$message.warning('请选择文件')
+                }
+            },
             download: function () {
                 window.location.href = "file/student"
             },

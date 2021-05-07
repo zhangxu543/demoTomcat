@@ -4,6 +4,7 @@ import com.csi.domain.Student;
 import com.csi.domain.Teacher;
 import com.csi.service.StudentService;
 import com.csi.service.TeacherService;
+import com.csi.util.MD5Utils;
 import com.csi.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ public class LoginController {
     @RequestMapping("/login/{id}/{password}/{status}")
     @ResponseBody
     public Result login(HttpSession session, @PathVariable(value = "id")String id, @PathVariable(value = "password") String password, @PathVariable(value = "status") String status){
+        password= MD5Utils.stringToMD5(password);
         logger.info("账号==="+id+"==密码==="+password+"===身份===="+status);
         Result result = new Result() ;
         if("3".equals(status)){

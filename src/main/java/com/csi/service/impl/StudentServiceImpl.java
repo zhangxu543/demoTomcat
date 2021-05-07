@@ -23,6 +23,11 @@ public class StudentServiceImpl implements StudentService {
     private StudentDao dao;
 
     @Override
+    public void insertExcel(List<Student> list) {
+        dao.insertExcel(list);
+    }
+
+    @Override
     public Student findById(String stuId) {
         return dao.findById(stuId);
     }

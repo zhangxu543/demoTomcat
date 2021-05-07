@@ -54,12 +54,11 @@ public class GradeController {
     }
 
     @RequestMapping("/insertExcel")
-    public String insertExcel(HttpServletRequest request, @RequestParam() MultipartFile file) throws Exception {
+    public String insertExcel( @RequestParam("file") MultipartFile[] filelist) throws Exception {
 
-        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         InputStream inputStream =null;
         List<List<Object>> list = null;
-        //MultipartFile file = multipartRequest.getFile("filename");
+        MultipartFile file = filelist[0];
         if(file.isEmpty()){
             return "文件不能为空";
         }

@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSON;
 import com.csi.domain.*;
 import com.csi.service.MajorService;
 import com.csi.service.StudentService;
+import com.csi.util.MD5Utils;
 import com.csi.util.PoiUpload;
 import com.csi.util.Result;
 import com.sun.deploy.net.HttpRequest;
 import com.sun.deploy.net.HttpResponse;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +47,7 @@ public class StudentController {
 
     @RequestMapping("/insertExcel")
     @ResponseBody
-    public String insertExcel(HttpServletRequest request,@RequestParam() MultipartFile file) throws Exception {
+    public String insertExcel(@RequestParam("file") MultipartFile file) throws Exception {
 
         //MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         InputStream inputStream =null;
@@ -58,6 +61,7 @@ public class StudentController {
         inputStream.close();
         //连接数据库部分
         try {
+            List<Student> list1=new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
                 List<Object> lo = list.get(i);
                 Student student=new Student();
@@ -68,9 +72,9 @@ public class StudentController {
                 student.setStuDorm(String.valueOf(lo.get(5)));
                 Major major = majorService.findByName(String.valueOf(lo.get(4)));
                 if(major==null)
-                    return "专业名称不对";
+                    return "文件专业名称不对";
                 student.setMajor(major);
-                student.setStuPassword("123456");
+                student.setStuPassword(MD5Utils.stringToMD5("123456"));
                 Nation nation=new Nation();
                 nation.setId(1);
                 student.setNation(nation);
@@ -80,9 +84,11 @@ public class StudentController {
                 SchoolRoll schoolRoll=new SchoolRoll();
                 schoolRoll.setId(1);
                 student.setSchoolRoll(schoolRoll);
-                studentService.insert(student);
+                list1.add(student);
             }
+            studentService.insertExcel(list1);
         }catch(Exception e){
+            e.printStackTrace();
             return "上传失败";
         }
         return "上传成功";
@@ -161,7 +167,7 @@ public class StudentController {
     @ResponseBody
     public Result insert(@RequestBody Student student){
         Result result = new Result() ;
-        student.setStuPassword("123456");
+        student.setStuPassword(MD5Utils.stringToMD5("123456"));
         Nation nation=new Nation();
         nation.setId(1);
         student.setNation(nation);
@@ -181,6 +187,8 @@ public class StudentController {
     public Result updatePass(HttpSession session,@PathVariable("stuId") String stuId,
                              @PathVariable("oldPass") String oldPass,
                              @PathVariable("pass") String pass){
+        oldPass=MD5Utils.stringToMD5(oldPass);
+        pass= MD5Utils.stringToMD5(pass);
         Student student = studentService.login(stuId, oldPass);
         Result result = new Result() ;
         if(student!=null){

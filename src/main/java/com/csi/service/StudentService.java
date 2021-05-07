@@ -12,6 +12,7 @@ import java.util.Map;
  */
 
 public interface StudentService {
+    void insertExcel(List<Student> list);
     Student findById(String stuId);
     Student login(String stuId,  String password);
     void insert(Student student);
