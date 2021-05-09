@@ -44,18 +44,17 @@
         </if>
     </select>
 
-    <insert id="insert" parameterType="grade">
+    <insert id="insert" parameterType="com.csi.domain.Grade">
     insert into grade (stu_id, sub_id,
       grade, term, tea_id,
       major_id, classroom)
-    values (#{student.stuId,jdbcType=VARCHAR}, #{subject.id,jdbcType=INTEGER},
-      #{grade,jdbcType=DOUBLE}, #{term,jdbcType=VARCHAR}, #{teacher.teaId,jdbcType=INTEGER},
-      #{student.major.id,jdbcType=INTEGER}, #{student.stuClass,jdbcType=VARCHAR})
+    values (#{student.stuId}, #{subject.id},
+      #{grade}, #{term}, #{teacher.teaId},
+      #{student.major.id}, #{student.stuClass})
   </insert>
+
     <insert id="insertExcel" parameterType="list" useGeneratedKeys="true" keyProperty="id">
-         insert into grade (stu_id, sub_id,
-      grade, term, tea_id,
-      major_id, classroom)
+         insert into grade (stu_id, sub_id,grade,term, tea_id,major_id, classroom)
     values
     <foreach collection="list" item="item" index="index" separator=",">
         (#{item.student.stuId},#{item.subject.id},#{item.grade},#{item.term},

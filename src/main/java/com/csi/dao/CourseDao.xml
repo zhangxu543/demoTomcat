@@ -25,7 +25,7 @@
       sub_id, tea_id, classroom,
       description)
     values (#{jdbcType=INTEGER}, #{weekDay,jdbcType=INTEGER}, #{several,jdbcType=INTEGER},
-      #{subject.id,jdbcType=INTEGER}, #{teacher.id,jdbcType=VARCHAR}, #{classRoom,jdbcType=VARCHAR},
+      #{subject.id,jdbcType=INTEGER}, #{teacher.teaId,jdbcType=VARCHAR}, #{classRoom,jdbcType=VARCHAR},
       #{description,jdbcType=VARCHAR})
     </insert>
 
@@ -35,7 +35,7 @@
         weekday = #{weekDay,jdbcType=INTEGER},
         several = #{several,jdbcType=INTEGER},
         sub_id = #{subject.id,jdbcType=INTEGER},
-        tea_id = #{teacher.id,jdbcType=VARCHAR},
+        tea_id = #{teacher.teaId,jdbcType=VARCHAR},
         classroom = #{classRoom,jdbcType=VARCHAR},
         description = #{description,jdbcType=VARCHAR}
         where id = #{id,jdbcType=INTEGER}

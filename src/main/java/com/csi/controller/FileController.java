@@ -44,13 +44,13 @@ public class FileController {
                 response.setContentType("application/force-download");// 设置强制下载不打开
                 response.addHeader("Content-Disposition", "attachment;fileName="+fileName);// 设置文件名
                 byte[] buffer = new byte[1024];
-                FileInputStream fis = null;
-                BufferedInputStream bis = null;
+                FileInputStream fis = null;//文件字节输入流
+                BufferedInputStream bis = null;//缓冲字节流
                 try {
                     fis = new FileInputStream(file);
                     bis = new BufferedInputStream(fis);
                     OutputStream os = response.getOutputStream();
-                    int i = bis.read(buffer);
+                    int i = bis.read(buffer);//从文件中按字节读取内容，到文件尾部时将返回-1
                     while (i != -1) {
                         os.write(buffer, 0, i);
                         i = bis.read(buffer);
