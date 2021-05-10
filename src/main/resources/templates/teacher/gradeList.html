@@ -595,8 +595,8 @@
                 })
             },
             findMajor: function () {
-                this.grade.major.id = '';
-                axios.post("/major/findMajor", this.major).then(response => {
+                //this.grade.major.id = '';
+                axios.post("/major/findMajor/"+ this.major.id).then(response => {
                     this.majors = response.data;
                 }).catch(error => {
                     console.dir(error)
