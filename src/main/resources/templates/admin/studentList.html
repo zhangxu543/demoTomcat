@@ -621,6 +621,7 @@
                     })
                     axios.post("/student/insertExcel",fd).then(response => {
                         this.$message.success(response.data);
+                        this.findAll();
                     }).catch(error =>{
                         console.dir(error)
                     })
@@ -703,7 +704,11 @@
                 this.$refs['student'].validate((valid) => {
                     if (valid) {
                         axios.post("/student/insert", this.student).then(response => {
-                            this.$message.success(response.data.message);
+                            if (response.data.code == 200) {
+                                this.$message.success(response.data.message);
+                            } else {
+                                this.$message.error(response.data.message);
+                            }
                             this.findAll();
                             this.student = this.studentnull;
                             this.major.id = '';

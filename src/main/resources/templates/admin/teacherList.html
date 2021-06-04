@@ -429,7 +429,11 @@
                 this.$refs['teacher'].validate((valid) => {
                     if (valid) {
                         axios.post("/teacher/insert",this.teacher).then(response =>{
-                            this.$message.success(response.data.message);
+                            if (response.data.code == 200) {
+                                this.$message.success(response.data.message);
+                            } else {
+                                this.$message.error(response.data.message);
+                            }
                             this.findAll()
                             this.teacher=this.teacherNull;
                         }).catch(error =>{

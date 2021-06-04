@@ -96,11 +96,17 @@ public class TeacherController {
     @ResponseBody
     public Result insert(@RequestBody Teacher teacher){
         Result result = new Result() ;
-        teacher.setTeaState("否");
-        teacher.setTeaPassword(MD5Utils.stringToMD5("123456"));
-        service.insert(teacher);
-        logger.info("新增教师信息======"+teacher);
-        result.setMessage("添加成功！");
+        Teacher teacher1 = service.findById(teacher.getTeaId());
+        if (teacher1==null){
+            teacher.setTeaState("否");
+            teacher.setTeaPassword(MD5Utils.stringToMD5("123456"));
+            service.insert(teacher);
+            logger.info("新增教师信息======"+teacher);
+            result.setCode(200);
+            result.setMessage("添加成功！");
+        }else {
+            result.setMessage("该教师号已经存在，添加失败！");
+        }
         return result;
     }
 
