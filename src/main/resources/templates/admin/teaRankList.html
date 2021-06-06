@@ -165,13 +165,14 @@
         methods: {
 
             delete0:function(row) {
+                if (confirm("确定要删除这条数据吗？")) {
                 axios.post("/teaRank/delete",row).then(response =>{
                     this.$message.success(response.data.message);
                     this.findAll();
                     this.findDept();
                 }).catch(error =>{
                     console.dir(error)
-                })
+                })}
             },
 
             //查询全部方法

@@ -93,11 +93,12 @@
                 <el-form label-width="120px" :model="subject" :rules="rules" ref="subject">
 
                     <el-form-item label="科目名称：" prop="name">
-                        <el-input  placeholder="请输入科目名称" v-model="subject.name" autocomplete="off"></el-input>
+                        <el-input placeholder="请输入科目名称" v-model="subject.name" autocomplete="off"></el-input>
                     </el-form-item>
 
                     <el-form-item label="学分：" prop="name">
-                        <el-input type="number"  placeholder="请输入学分" v-model="subject.credit" autocomplete="off"></el-input>
+                        <el-input type="number" placeholder="请输入学分" v-model="subject.credit"
+                                  autocomplete="off"></el-input>
                     </el-form-item>
 
                 </el-form>
@@ -165,13 +166,15 @@
 
         methods: {
 
-            delete0:function(row) {
-                axios.post("/subject/delete",row).then(response =>{
-                    this.$message.success(response.data.message);
-                    this.findAll();
-                }).catch(error =>{
-                    console.dir(error)
-                })
+            delete0: function (row) {
+                if (confirm("确定要删除这条数据吗？")) {
+                    axios.post("/subject/delete", row).then(response => {
+                        this.$message.success(response.data.message);
+                        this.findAll();
+                    }).catch(error => {
+                        console.dir(error)
+                    })
+                }
             },
 
             //查询全部方法
@@ -186,18 +189,18 @@
             findByLike: function () {
                 axios.post("/subject/findByLike", this.subject0).then(response => {
                     this.currentPage = 1;
-                    this.subject0= {};
+                    this.subject0 = {};
                     this.subjects = response.data;
                 }).catch(error => {
                     console.dir(error)
                 })
             },
-            insert:function (){
-                axios.post("/subject/insert",this.subject).then(response =>{
+            insert: function () {
+                axios.post("/subject/insert", this.subject).then(response => {
                     this.$message.success(response.data.message);
-                    this.subject= this.subjectNull;
+                    this.subject = this.subjectNull;
                     this.findAll();
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
                 this.dialogFormVisible = false;

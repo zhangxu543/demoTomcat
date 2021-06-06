@@ -250,17 +250,19 @@
 
         methods: {
 
-            delete0:function(row) {
-                axios.post("/major/deleteMajor",row).then(response =>{
-                    this.$message.success(response.data.message);
-                    if(row.dept_id==0)
-                        this.findDepts();
-                    else
-                        this.findAll();
-                    this.findDept();
-                }).catch(error =>{
-                    console.dir(error)
-                })
+            delete0: function (row) {
+                if (confirm("确定要删除这条数据吗？")) {
+                    axios.post("/major/deleteMajor", row).then(response => {
+                        this.$message.success(response.data.message);
+                        if (row.dept_id == 0)
+                            this.findDepts();
+                        else
+                            this.findAll();
+                        this.findDept();
+                    }).catch(error => {
+                        console.dir(error)
+                    })
+                }
             },
 
             //查询全部方法
@@ -276,7 +278,7 @@
                 axios.post("/major/findByLike", this.major0).then(response => {
                     this.currentPage = 1;
                     this.majors = response.data;
-                    this.major0=this.majorNull;
+                    this.major0 = this.majorNull;
                 }).catch(error => {
                     console.dir(error)
                 })
@@ -302,25 +304,25 @@
                     console.dir(error)
                 })
             },
-            insert:function (){
-                axios.post("/major/insert",this.major).then(response =>{
+            insert: function () {
+                axios.post("/major/insert", this.major).then(response => {
                     this.$message.success(response.data.message);
-                    this.major= this.majorNull;
+                    this.major = this.majorNull;
                     this.findAll();
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
                 this.dialogFormVisible = false;
 
             },
-            insert0:function (){
-                this.major1.dept_id='0';
-                axios.post("/major/insert",this.major1).then(response =>{
+            insert0: function () {
+                this.major1.dept_id = '0';
+                axios.post("/major/insert", this.major1).then(response => {
                     this.$message.success(response.data.message);
-                    this.major1= this.majorNull;
+                    this.major1 = this.majorNull;
                     this.findDepts();
                     this.findDept();
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
                 this.dialogFormVisible0 = false;

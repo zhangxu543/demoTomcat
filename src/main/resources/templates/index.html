@@ -131,6 +131,11 @@
             }
         },
         methods: {
+            resetLoginForm:function (){
+                this.loginForm.status=1;
+                this.loginForm.username="";
+                this.loginForm.password="";
+            },
             login:function (){
                 if (this.loginForm.username.length > 0 && this.loginForm.password.length > 0)
                     axios.post("/login/" + this.loginForm.username + "/" + this.loginForm.password + "/" + this.loginForm.status).then(response => {

@@ -26,31 +26,31 @@
             <div class="filter-container">
                 <!-- 搜索栏 -->
 
-<!--
-                <el-form :inline="true" :model="major0" ref="major0" class="formInfo" label-width="70px">
-                    <el-form-item label="专业" label-width="40px" prop="id">
-                        <el-input placeholder="请输入" v-model="major0.name" style="width: 200px;"
-                                  class="filter-item"></el-input>
-                    </el-form-item>
+                <!--
+                                <el-form :inline="true" :model="major0" ref="major0" class="formInfo" label-width="70px">
+                                    <el-form-item label="专业" label-width="40px" prop="id">
+                                        <el-input placeholder="请输入" v-model="major0.name" style="width: 200px;"
+                                                  class="filter-item"></el-input>
+                                    </el-form-item>
 
-                    <el-form-item label="院系" label-width="40px" prop="dept_id">
-                        <el-select v-model="major0.dept_id" placeholder="请选择院系">
-                            <el-option
-                                    v-for="item in stuDepts"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item.id">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
+                                    <el-form-item label="院系" label-width="40px" prop="dept_id">
+                                        <el-select v-model="major0.dept_id" placeholder="请选择院系">
+                                            <el-option
+                                                    v-for="item in stuDepts"
+                                                    :key="item.id"
+                                                    :label="item.name"
+                                                    :value="item.id">
+                                            </el-option>
+                                        </el-select>
+                                    </el-form-item>
 
-                    <el-form-item>
-                        <el-button @click="handleRest">清除</el-button>
-                        <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
-                        <el-button type="primary" class="butOK" @click="findDepts()">查看院系</el-button>
-                    </el-form-item>
-                </el-form>
--->
+                                    <el-form-item>
+                                        <el-button @click="handleRest">清除</el-button>
+                                        <el-button type="primary" class="butOK" @click="findByLike()">搜索</el-button>
+                                        <el-button type="primary" class="butOK" @click="findDepts()">查看院系</el-button>
+                                    </el-form-item>
+                                </el-form>
+                -->
             </div>
         </div>
 
@@ -112,7 +112,6 @@
             </el-dialog>
 
 
-
             <!-- end -->
         </div>
 
@@ -164,14 +163,16 @@
 
         methods: {
 
-            delete0:function(row) {
-                axios.post("/teaDept/delete",row).then(response =>{
-                    this.$message.success(response.data.message);
-                    this.findAll();
-                    this.findDept();
-                }).catch(error =>{
-                    console.dir(error)
-                })
+            delete0: function (row) {
+                if (confirm("确定要删除这条数据吗？")) {
+                    axios.post("/teaDept/delete", row).then(response => {
+                        this.$message.success(response.data.message);
+                        this.findAll();
+                        this.findDept();
+                    }).catch(error => {
+                        console.dir(error)
+                    })
+                }
             },
 
             //查询全部方法
@@ -184,12 +185,12 @@
                 });
             },
 
-            insert:function (){
-                axios.post("/teaDept/insert",this.dept).then(response =>{
+            insert: function () {
+                axios.post("/teaDept/insert", this.dept).then(response => {
                     this.$message.success(response.data.message);
-                    this.dept= {};
+                    this.dept = {};
                     this.findAll();
-                }).catch(error =>{
+                }).catch(error => {
                     console.dir(error)
                 })
                 this.dialogFormVisible = false;
